@@ -5,6 +5,9 @@ const CryptoJS = require("crypto-js");
 const express = require("express"); 
 const app = express();
 app.get('/',function(req,res) {
+  console.log(req.query.id);
+  console.log(decrypt);
+  console.log(decrypt(req.query.id));
   if(req.query.id) { gg.url = decrypt(req.query.id);
     setTimeout(function() { delete gg.url }, 30 * 60000)
     res.json({values: db.summary,state: mycolor(db.state)})
