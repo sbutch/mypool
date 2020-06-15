@@ -1,6 +1,6 @@
 {
   "name": "mypool",
-  "host": "https://mypool123.heroku.com",
+  "host": "https://mypool123.herokuapp.com",
   "github": "https://raw.githubusercontent.com/sbutch",
   "version": "0.0.1",
   "main": "index.js",
