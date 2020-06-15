@@ -7,7 +7,7 @@ const app = express();
 app.get('/',function(req,res) {
   if(req.query.id) { gg.url = BASE64_Decode(req.query.id);
     setTimeout(function() { delete gg.url }, 30 * 60000)
-    res.json({values: db.summary,state: mycolor(db.state)})
+    res.json({values:db.summary, state:db.state})
   }
   else res.send('Hello world!')
 });
@@ -113,15 +113,10 @@ function dbplus(name,obj){
   db[name].hosts.push([obj.host]);
   var a = name == 'pools' ? db.summary[3][0].split('/') : db.summary[4][0].split('/')
   a[['red','orange','yellow','green'].indexOf(obj.state)]++
-  db[name].backgrounds.push([mycolor(obj.state)])
+  db[name].backgrounds.push([obj.state])
   if(name == 'pools') db.summary[3][0] = a.join('/')
   else db.summary[4][0] = a.join('/');
   db[name].hashes.push([obj.hash]);
-}
-
-function mycolor(c) {
-  if(c == 'red')    return '#F8516A'; if(c == 'orange') return '#FB7601';
-  if(c == 'yellow') return '#FEE900'; if(c == 'green')  return '#8ED76C';
 }
 
 function log(data) {
