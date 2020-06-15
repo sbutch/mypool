@@ -1,0 +1,19 @@
+{
+  "name": "mypool",
+  "host": "https://mypool123.heroku.com",
+  "github": "https://raw.githubusercontent.com/sbutch",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "crypto-js": "^4.0.0",
+    "express": "^4.17.1",
+    "net": "^1.0.2",
+    "request": "^2.88.2"
+  }
+}
