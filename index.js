@@ -12,9 +12,7 @@ app.get('/',function(req,res) {
   else res.send('Hello world!')
 });
 app.listen(process.env.PORT||5000, () => {
-  setInterval(function() {
-    request(db.summary[1][0], function(err, res, body) { });
-  }, 10 * 60000); 
+  setInterval(function() { request(db.summary[1][0], function(err, res, body) { })}, 10 * 60000); 
 })
 
 var db = {
@@ -25,12 +23,11 @@ var db = {
   log: []
 }
 
-var encrypt = function(x){ return Buffer.from(x).toString('base64') }
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') }
 var glob = function(x) { eval(decrypt(x.substring(-~[])))}
-('AZW5jcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmVuY3J5cHQoeCwnMTIzNDUnKS50b1N0cmluZyg'+
- 'pIH07CmRlY3J5cHQgPSBmdW5jdGlvbih4KXsgcmV0dXJuIENyeXB0b0pTLkFFUy5kZWNyeXB0KHguc3BsaXQoJ1xuJykuam9'+
- 'pbignJyksJzEyMzQ1JykudG9TdHJpbmcoQ3J5cHRvSlMuZW5jLlV0ZjgpIH0=')
+('AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY'+
+ '3J5cHQoeC5zcGxpdCgnXG4nKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyh'+
+ 'DcnlwdG9KUy5lbmMuVXRmOCkgfQ==')
 
 var gg = { rec: false };
 var pools = [];
