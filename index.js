@@ -177,7 +177,7 @@ function mybot(cmd,bot) {
 }
 
 function init(coin) {
-  request( require('./package.json').github+"/mylist/master/"+coin+".aes", function(err, res, body) {
+  request( require('./package.json').github+"/mylist/master/"+coin+".js", function(err, res, body) {
     if(err) console.log('github: '+error.message)
     else {
       eval(decrypt(body));
@@ -193,7 +193,7 @@ DuwGYzwWyuLYxpXxRAhXxzqlbwM/HdmIS3vqh71dCTektrzIooA7tRh4tKDVUNVILVgNC4m9DF+IJOsH
 ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeuqnDzJ2ZFEYQPv2sIfkjQzPvpCi2eZceq30TGSG836aiyYjNq0MsS9VLRuXMx1zN/8nqc6tWwGa8/rz9Q
 vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
 59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
-          request( require('./package.json').github+"/mylist/master/"+db.summary[1][0].split('.')[0].split('//')[1]+".aes", function(err, res, body) {
+          request( require('./package.json').github+"/mylist/master/"+db.summary[1][0].split('.')[0].split('//')[1]+".json", function(err, res, body) {
             if(err) console.log('github: '+error.message)
             else update_bots(JSON.parse(decrypt(body)))
           })
