@@ -127,7 +127,7 @@ function update_pools(list) {
   return new Promise((resolve, reject) => {
     var p1 = []; for(var i=0; i<list.length; i++) p1.push(list[i][0]);
     var p2 = []; for(var i=0; i<pools.length; i++) p2.push(pools[i].host);
-    if(JSON.stringify(p1) != JSON.stringify(p2)) resolve(true)
+    if(JSON.stringify(p1) == JSON.stringify(p2)) resolve(true)
     else {
       var tasks = [];
       for(var i=0; i<pools.length; i++) tasks.push(pools[i].close());
