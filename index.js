@@ -14,7 +14,6 @@ app.get('/',function(req,res) {
     if(!msg.includes('error')) {
       data.wallet = db.wallet;
       data.pools = { values: [] }; for(var i=0; i<pools.length; i++) data.pools.values.push([pools[i].host]);
-      data.bots = { values: [] }; for(var i=0; i<bots.length; i++) data.bots.values.push([bots[i].host]);
       data.push = {log: db.log};
       db.log = { values: [], backgrounds: [] };
     };
