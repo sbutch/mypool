@@ -98,7 +98,7 @@ setInterval(function() {
   }
 
   db.state = rt ? 'orange' : hsum == 0 ? 'yellow' : 'green'
-  db.summary[2] = [(active ? hsum : 0)+' h/s '+hsub+'/'+hacp+' - '+(cluster.id == 1 ? 30-m : 60-m)+' sec'];
+  db.summary[2] = [(active ? hsum : 0)+' h/s '+hsub+'/'+hacp+' - '+(cluster.id == 1 ? 30-m : 60-m)+' min'];
 
   if(active && !gg.rec && gg.url) {
     gg.rec = true;
