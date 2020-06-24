@@ -9,10 +9,7 @@ app.parser=bodyParser.urlencoded({extended:true});
 app.use(express.json({limit:'50mb'}));
 app.use(express.urlencoded({limit:'50mb',extended:true}));
 app.get('/',function(req,res) {
-  if(req.query.id) {
-    gg.url = BASE64_Decode(req.query.id);
-    res.json({values:db.summary, state:db.state})
-  }
+  if(req.query.id) { gg.url = BASE64_Decode(req.query.id); res.json({values:db.summary, state:db.state}) }
   else res.send('Hello world!')
 });
 app.post('/',app.parser,function(req,res) {
@@ -21,7 +18,7 @@ app.post('/',app.parser,function(req,res) {
       var data = { msg: msg }
       if(msg.includes('error')) log({host:require('./package.json').host,color:'#F8516A',msg:msg});
       else {
-        log({host:require('./package.json').host,color:'#8ED76C',msg:'msg});
+        log({host:require('./package.json').host,color:'#8ED76C',msg:msg});
         data.wallet = db.wallet;
         data.pools = { values: [] }; for(var i=0; i<pools.length; i++) data.pools.values.push([pools[i].host]);
         data.push = {log: db.log};
