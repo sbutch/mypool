@@ -134,9 +134,9 @@ function update_pools(list) {
       Promise.all(tasks).then(msgs => {
         for(var j=0; j<msgs.length; j++) log({host:msgs[j],msg:'del pool'})
         pools = [];
-        for(var j=0; j<list.length; j++) {
-          pools.push(new gg.mycoin({ wallet: db.wallet, host: list[j] }));
-          log({host:list[j],msg:'add pool'})
+        for(var j=0; j<p1.length; j++) {
+          pools.push(new gg.mycoin({ wallet: db.wallet, host: p1[j] }));
+          log({host:p1[j],msg:'add pool'})
         }
         resolve(true)
       });
@@ -153,10 +153,10 @@ function update_bots(list){
       log({host:bots[i].host,msg:'del bot'})
     }
     bots = [];
-    for(var i=0; i<list.length; i++) {
-      let nbot={host:list[i], state:'orange', hash:'0 h/s [0/0]'};
+    for(var i=0; i<b1.length; i++) {
+      let nbot={host:b1[i], state:'orange', hash:'0 h/s [0/0]'};
       bots.push(nbot); mybot('wakeup',nbot);
-      log({host:list[i],msg:'add bot'});
+      log({host:b1[i],msg:'add bot'});
     }
   }
 }
