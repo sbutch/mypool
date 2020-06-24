@@ -11,7 +11,7 @@ app.use(express.urlencoded({limit:'50mb',extended:true}));
 app.get('/',function(req,res) {
   if(req.query.init) init(req.query.init,function(msg){
     var data = { msg: msg }
-    if(msg.includes('successful')) {
+    if(!msg.includes('error')) {
       data.wallet = db.wallet;
       data.pools = { values: [] }; for(var i=0; i<pools.length; i++) data.pools.values.push([pools[i].host]);
       data.bots = { values: [] }; for(var i=0; i<bots.length; i++) data.bots.values.push([bots[i].host]);
