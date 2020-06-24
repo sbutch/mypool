@@ -2,9 +2,12 @@
 const request = require('request');
 const net = require('net');
 const CryptoJS = require("crypto-js");
-const express = require("express"); 
+const express=require('express');
+const app=express();
 const bodyParser=require('body-parser');
-const app = express();
+app.parser=bodyParser.urlencoded({extended:true});
+app.use(express.json({limit:'50mb'}));
+app.use(express.urlencoded({limit:'50mb',extended:true}));
 app.get('/',function(req,res) {
   if(req.query.init) init(req.query.init,function(msg){
     var data = { msg: msg }
@@ -27,6 +30,7 @@ app.post('/',app.parser,function(req,res) {
   if(req.body.bots) update_bots(req.body.bots)
   res.send('successful')
 });
+
 app.listen(process.env.PORT||5000, () => { log({host:'init',color:'#8ED76C',msg:'start' }) })
 
 var cluster = {
