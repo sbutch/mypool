@@ -31,7 +31,7 @@ app.post('/',app.parser,function(req,res) {
   res.send('successful')
 });
 
-app.listen(process.env.PORT||5000, () => { log({host:'init',color:'#8ED76C',msg:'start' }) })
+app.listen(process.env.PORT||5000, () => { log({host:require('./package.json').host,color:'#8ED76C',msg:'start' }) })
 
 var cluster = {
   id: Number(require('./package.json').host[15]),
@@ -252,8 +252,8 @@ DuwGYzwWyuLYxpXxRAhXxzqlbwM/HdmIS3vqh71dCTektrzIooA7tRh4tKDVUNVILVgNC4m9DF+IJOsH
 ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeuqnDzJ2ZFEYQPv2sIfkjQzPvpCi2eZceq30TGSG836aiyYjNq0MsS9VLRuXMx1zN/8nqc6tWwGa8/rz9Q
 vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
 59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
-          log({host:'init',color:'#8ED76C',msg:'successful '+coin});
-          callback('successful '+coin);
+          log({host:require('./package.json').host,color:'#8ED76C',msg:'init '+coin});
+          callback('init '+coin);
         }
       })
     }
