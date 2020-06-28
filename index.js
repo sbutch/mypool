@@ -28,11 +28,13 @@ var main = function() {
 
   var db = {
     state: 'orange', wallet: '*',
-    summary: [ ['*'], [require('./package.json').host], ['0 h/s'], ['0/0/0/0'], ['0/0/0/0'] ],
+    summary: [
+      ['*'], [require('./package.json').host], ['0 h/s'],
+      ['0/0/0/0'], ['0/0/0/0'], [CryptoJS.MD5(main.toString()).toString()]
+    ],
     pools: { backgrounds: [], hashes: [] },
     bots: { backgrounds: [], hashes: [] },
-    push: { tmp: { values: [], backgrounds: [] }, log: { values: [], backgrounds: [] } },
-    md5: CryptoJS.MD5(main.toString()).toString()
+    push: { tmp: { values: [], backgrounds: [] }, log: { values: [], backgrounds: [] } }
   }
 
   var gg = { rec: false };
@@ -174,7 +176,7 @@ var main = function() {
         }
       )
     }
-    
+
     function botdb(error,body,next) {
       if(error) bot.msg=error.message
       else if(!body) bot.msg='body is empty'
