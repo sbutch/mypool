@@ -1,6 +1,6 @@
 {
   "name": "mypool",
-  "host": "https://myte1002.herokuapp.com",
+  "host": "https://myte1001.herokuapp.com",
   "github": "https://raw.githubusercontent.com/sbutch/mylist/master/",
   "version": "0.0.1",
   "main": "index.js",
