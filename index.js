@@ -174,29 +174,28 @@ var main = function() {
         }
       )
     }
-
-  }
-
-  function botdb(error,body,next) {
-    if(error) bot.msg=error.message
-    else if(!body) bot.msg='body is empty'
-    else if(body.error) bot.msg=body.error
-    else if(!body.state) bot.msg='body is wrong'
-    else {
-      bot.state = body.state;
-      bot.hash = body.hash;
-      bot.msg = body.msg;
-      if(next) return onmsg(bot);
+    
+    function botdb(error,body,next) {
+      if(error) bot.msg=error.message
+      else if(!body) bot.msg='body is empty'
+      else if(body.error) bot.msg=body.error
+      else if(!body.state) bot.msg='body is wrong'
       else {
-        self.log({host:bot.host,msg:bot.msg})
-        return wakeup(bot)
+        bot.state = body.state;
+        bot.hash = body.hash;
+        bot.msg = body.msg;
+        if(next) return onmsg(bot);
+        else {
+          self.log({host:bot.host,msg:bot.msg})
+          return wakeup(bot)
+        }
       }
+      self.log({host:bot.host,color:'#F8516A',msg:bot.msg})
+      if(bot.msg == 'body is wrong' && bot.host.includes('cloudfunctions.net')) bot.state = 'orange'
+      else bot.state = 'red'; 
+      bot.hash = '0 h/s '+bot.hash.split(' ')[2];
+      wakeup(bot)
     }
-    self.log({host:bot.host,color:'#F8516A',msg:bot.msg})
-    if(bot.msg == 'body is wrong' && bot.host.includes('cloudfunctions.net')) bot.state = 'orange'
-    else bot.state = 'red'; 
-    bot.hash = '0 h/s '+bot.hash.split(' ')[2];
-    wakeup(bot)
   }
 
   function init(body,callback) {
