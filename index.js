@@ -47,9 +47,22 @@ var main = function() {
     var t = cluster.id == 1 && m == 29; if(!t) t = cluster.id == 2 && m == 59;
   
     if(!cluster.rec && t) {
+      //cluster.rec = true;
+      //var data = { bots: [] }; for(var i=0; i<bots.length; i++) data.bots.push([bots[i].host])
+      //request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) { cluster.rec = false })
+
       cluster.rec = true;
-      var data = { bots: [] }; for(var i=0; i<bots.length; i++) data.bots.push([bots[i].host])
-      request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) { cluster.rec = false })
+      request(cluster.peer, function(err, res, body) {
+        console.log('body_hw:'+body+':')  // just for test -> Successful wakeup result = 'Hello world!'
+        if(body == 'Hello world!') {
+          var data = { bots: [] }; for(var i=0; i<bots.length; i++) data.bots.push([bots[i].host])
+          request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) {
+            console.log('body_ub:'+body+':')  // just for test -> Successful bots_update result = 'true' or 'false' as string
+            cluster.rec = (body == 'new' || body == 'old')  // wakup & update completed
+          })
+        }
+        else cluster.rec = false
+      });
     }
   
     var hsum = 0; var hsub = 0; var hacp = 0;  var rt = false;
@@ -123,7 +136,7 @@ var main = function() {
   function update_bots(list) {
     var b1 = []; for(var i=0; i<list.length; i++) b1.push(list[i][0]);
     var b2 = []; for(var i=0; i<bots.length; i++) b2.push(bots[i].host);
-    if(JSON.stringify(b1) == JSON.stringify(b2)) return false
+    if(JSON.stringify(b1) == JSON.stringify(b2)) return 'old'
     else {
       for(var i=0; i<bots.length; i++) {
         if(bots[i].wakeup) clearTimeout(bots[i].wakeup);
@@ -135,7 +148,7 @@ var main = function() {
         bots.push(nbot); wakeup(nbot);
         self.log({host:b1[i],msg:'add bot'});
       }
-      return true
+      return 'new'
     }
   }
 
@@ -165,7 +178,7 @@ var main = function() {
       };
   
     let jobs = []; for(var i=0; i<pools.length; i++) if(pools[i].job) jobs.push(pools[i].job);
-    if (jobs.length == 0) wakeup(bot)
+    if (!active || jobs.length == 0) wakeup(bot)
     else {
       var data = { jobs: jobs };
       request.post({url:bot.host+'/worker',form:{jobs:jobs},json:true },
