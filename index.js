@@ -47,18 +47,12 @@ var main = function() {
     var t = cluster.id == 1 && m == 29; if(!t) t = cluster.id == 2 && m == 59;
   
     if(!cluster.rec && t) {
-      //cluster.rec = true;
-      //var data = { bots: [] }; for(var i=0; i<bots.length; i++) data.bots.push([bots[i].host])
-      //request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) { cluster.rec = false })
-
       cluster.rec = true;
       request(cluster.peer, function(err, res, body) {
-        console.log('body_hw:'+body+':')  // just for test -> Successful wakeup result = 'Hello world!'
         if(body == 'Hello world!') {
           var data = { bots: [] }; for(var i=0; i<bots.length; i++) data.bots.push([bots[i].host])
           request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) {
-            console.log('body_ub:'+body+':')  // just for test -> Successful bots_update result = 'true' or 'false' as string
-            cluster.rec = (body == 'new' || body == 'old')  // wakup & update completed
+            cluster.rec = (body == 'new' || body == 'old')
           })
         }
         else cluster.rec = false
