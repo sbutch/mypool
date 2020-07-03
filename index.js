@@ -161,7 +161,7 @@ var main = function() {
   }
 
   function mylist(arr,json) {
-    result = []; for(var i=0; i<arr.length; i++) result.push(arr[i].host);
+    var result = []; for(var i=0; i<arr.length; i++) result.push(arr[i].host);
     if(json) return JSON.stringify(result)
     return result
   }
