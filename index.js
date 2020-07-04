@@ -201,7 +201,7 @@ var main = function() {
     if(Object.prototype.toString.call(bot.msg).slice(0,-1).split(' ')[1] == 'Array')
       for(var i=0; i<pools.length; i++) for(var j=0; j<bot.msg.length; j++) {
         if(pools[i].job && pools[i].job.job.job_id == bot.msg[j].job_id) {
-          pools[i].mysubmit(bot.msg[j]);
+          pools[i].mysubmit(bot.msg[j],yellow_pools);
           break;
         };
       };
