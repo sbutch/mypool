@@ -2,12 +2,15 @@ const net = require('net');
 
 var coin = "Tube";
 
-function Tube(req) {
+function Tube(req,log) {
   var self = this;
   this.host = req.host;
   this.state = 'orange';
   this.hash = '0/0';
   this.job = null; this.submit = null;
+
+
+  log({host:self.host, color:'#F8516A',msg:'tessssssssssssssssst'});
 
   var wallet = req.wallet;
   var client = new net.Socket();
