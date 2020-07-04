@@ -110,10 +110,7 @@ var main = function() {
         else if(!body.yellow_pools) { log({host:'google',color:'#F8516A',msg:'body is wrong (data): '+body}); gg.rec = false }
         else {
           var tasks = []; yellow_pools = body.yellow_pools == 'ON';
-          if(body.wallet && body.wallet != db.wallet) {
-            db.wallet = body.wallet; log({host:'new wallet',msg:db.wallet});
-            if(!body.pools) { var list = []; for(var i=0; i<pools.length; i++) list.push([pools[i].host]); tasks.push(update_pools(list)) }
-          }
+          if(body.wallet) tasks.push(update_wallet(body.wallet))
           if(body.pools) tasks.push(update_pools(body.pools));   
           if(body.bots) update_bots(body.bots);
           Promise.all(tasks).then(msgs => { gg.rec = false });
@@ -121,6 +118,16 @@ var main = function() {
       })
     }
   }, 1000);
+
+  function update_wallet(w) {
+    return new Promise((resolve, reject) => {
+      if(w != db.wallet) {
+        db.wallet = w; log({host:'new wallet',msg:db.wallet});
+        update_pools([]).then( res => resolve(true))
+      }
+      resolve(false)
+    })
+  }
 
   function update_pools(list) {
     return new Promise((resolve, reject) => {
@@ -236,21 +243,20 @@ var main = function() {
   }
 
   this.post = function(req,res) {
-    if(req.body.pools) update_pools(req.body.pools);
-    if(req.body.bots) update_bots(req.body.bots);
     if(req.body.init) {
-      var code = Buffer.from(req.body.code,'base64').toString('ascii');
-      
-      console.log(code)
-      
-      eval(code);
-      var data = {
-        msg: 'init '+req.body.init,
-        wallet: db.wallet,
-        log: JSON.parse(JSON.stringify(db.log)),
-      }
-      db.log = { values: [], backgrounds: [] };
-      res.json(data)
+      var tasks = [];
+      db.summary[0] = [req.body.init];
+      gg.mycoin = require('./'+db.summary[0]+'.js');
+      tasks.push(update_wallet(req.body.wallet))
+      tasks.push(update_pools(req.body.pools));
+      update_bots(req.body.bots);
+      Promise.all(tasks).then(msgs => {
+        res.json({
+          msg: 'init '+db.summary[0],
+          wallet: db.wallet,
+          log: JSON.parse(JSON.stringify(db.log)),
+        })
+      });
     }
     else res.send('hello')
   }
