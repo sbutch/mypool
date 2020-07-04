@@ -70,7 +70,12 @@ var main = function() {
       cluster.rec = true;
       request(cluster.peer, function(err, res, body) {
         if(body == 'Hello world!') {
-          var data = { pools: mylist(pools), bots: mylist(bots) };
+          var data = {
+            init: db.summary[0],
+            wallet: db.wallet,
+            pools: mylist(pools),
+            bots: mylist(bots)
+          };
           request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) { cluster.rec = false })
         }
         else cluster.rec = false
@@ -121,10 +126,10 @@ var main = function() {
 
   function update_wallet(w) {
     return new Promise((resolve, reject) => {
-      if(w == db.wallet) resolve('(old)')
+      if(w == db.wallet) resolve('old wallet')
       else {
         db.wallet = w; log({host:'new wallet',msg:db.wallet});
-        update_pools([]).then( res => resolve('(new)'))
+        update_pools([]).then( res => resolve('new wallet'))
       }
     })
   }
@@ -132,7 +137,7 @@ var main = function() {
   function update_pools(list) {
     return new Promise((resolve, reject) => {
       var p1 = []; for(var i=0; i<list.length; i++) p1.push(list[i][0]);
-      if(JSON.stringify(p1) == mylist(pools,true)) resolve(true)
+      if(JSON.stringify(p1) == mylist(pools,true)) resolve('old pools '+pools.length)
       else {
         var tasks = [];
         for(var i=0; i<pools.length; i++) tasks.push(pools[i].close());
@@ -143,7 +148,7 @@ var main = function() {
             pools.push(new gg.mycoin({ wallet: db.wallet, host: p1[j] }));
             log({host:p1[j],msg:'add pool'})
           }
-          resolve(true)
+          resolve('new pools '+pools.length)
         });
       }
     })
@@ -151,7 +156,7 @@ var main = function() {
 
   function update_bots(list) {
     var b1 = []; for(var i=0; i<list.length; i++) b1.push(list[i][0]);
-    if(JSON.stringify(b1) == mylist(bots,true)) return false
+    if(JSON.stringify(b1) == mylist(bots,true)) return 'old bots '+bots.length
     else {
       for(var i=0; i<bots.length; i++) {
         if(bots[i].wakeup) clearTimeout(bots[i].wakeup);
@@ -163,7 +168,7 @@ var main = function() {
         bots.push(nbot); wakeup(nbot);
         log({host:b1[i],msg:'add bot'});
       }
-      return true
+      return 'new bots '+bots.length
     }
   }
 
@@ -243,14 +248,20 @@ var main = function() {
   }
 
   this.post = function(req,res) {
+    var tasks = []; var list = []
     if(req.body.init) {
       db.summary[0] = [req.body.init];
       gg.mycoin = require('./'+db.summary[0]+'.js');
-      update_wallet(req.body.wallet).then(msg => {
-        res.json({ msg: 'init '+db.summary[0]+' '+msg })
-      });
+      list.push('init '+db.summary[0])
     }
-    else res.send('hello')
+    if(req.body.wallet) tasks.push(update_wallet(req.body.wallet))
+    if(req.body.pools) tasks.push(update_pools(req.body.pools))
+    if(req.body.bots) list.push(update_bots(req.body.bots))
+
+    Promise.all(tasks).then(msgs => {
+      for(var i=0; i<msgs.length; i++) list.push(msgs[i])
+      res.json({msg:list.join('\n')})
+    });
   }
 
   this.super = function(body) {
