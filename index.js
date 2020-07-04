@@ -1,6 +1,5 @@
 'use strict';
 const request = require('request');
-const net = require('net');
 const CryptoJS = require("crypto-js");
 const express=require('express');
 const app=express();
@@ -248,9 +247,6 @@ var main = function() {
   }
 
   this.post = function(req,res) {
-    
-    console.log(req.body)
-    
     var tasks = []; var list = []
     if(req.body.init) {
       db.summary[0] = [req.body.init];
