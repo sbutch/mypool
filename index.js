@@ -244,18 +244,10 @@ var main = function() {
 
   this.post = function(req,res) {
     if(req.body.init) {
-      var tasks = [];
       db.summary[0] = [req.body.init];
       gg.mycoin = require('./'+db.summary[0]+'.js');
-      tasks.push(update_wallet(req.body.wallet))
-      tasks.push(update_pools(req.body.pools));
-      update_bots(req.body.bots);
-      Promise.all(tasks).then(msgs => {
-        res.json({
-          msg: 'init '+db.summary[0],
-          wallet: db.wallet,
-          log: JSON.parse(JSON.stringify(db.log)),
-        })
+      update_wallet(req.body.wallet).then(msg => {
+        res.json({ msg: 'init '+db.summary[0]+' '+msg })
       });
     }
     else res.send('hello')
