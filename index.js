@@ -121,11 +121,11 @@ var main = function() {
 
   function update_wallet(w) {
     return new Promise((resolve, reject) => {
-      if(w != db.wallet) {
+      if(w == db.wallet) resolve('(old)')
+      else {
         db.wallet = w; log({host:'new wallet',msg:db.wallet});
-        update_pools([]).then( res => resolve(true))
+        update_pools([]).then( res => resolve('(new)'))
       }
-      resolve(false)
     })
   }
 
