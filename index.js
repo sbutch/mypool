@@ -20,7 +20,6 @@ app.listen(process.env.PORT||5000, () => {
 
 var tmp = { values: [], backgrounds: [] }
 function log(data) {
-  console.log(data)
   tmp.values.push([new Date().toLocaleString(),data.host,data.msg]);
   if(!data.color) data.color = null;
   tmp.backgrounds.push([data.color,data.color,data.color]);
