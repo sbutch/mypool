@@ -55,7 +55,7 @@ function Tube(req) {
     self.close().then( res => self.connect() )
   }
 
-  this.mysubmit = function(req) {
+  this.mysubmit = function(req,yellow_pools) {
     if(yellow_pools) {
       self.state = 'yellow';
       self.job = null; 
