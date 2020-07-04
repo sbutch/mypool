@@ -75,7 +75,10 @@ var main = function() {
             pools: mylist(pools),
             bots: mylist(bots)
           };
-          request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) { cluster.rec = false })
+          request.post({ url: cluster.peer, form: data, json: true }, function(err, res, body) {
+            log({ host:require('./package.json').host,color:'#8ED76C',msg:body });
+            cluster.rec = false
+          })
         }
         else cluster.rec = false
       });
@@ -259,7 +262,7 @@ var main = function() {
 
     Promise.all(tasks).then(msgs => {
       for(var i=0; i<msgs.length; i++) list.push(msgs[i])
-      res.json({msg:list.join('\n')})
+      res.json({msg:list.join(';')})
     });
   }
 
