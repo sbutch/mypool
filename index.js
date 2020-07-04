@@ -54,6 +54,7 @@ var main = function() {
   var pools = []; var bots = []; var yellow_pools = true;
   var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') };
 
+
   setInterval(function() {
     m = new Date().getMinutes();
     active = (cluster.id == 1 && m < 30) || (cluster.id == 2 && m >= 30);
@@ -262,7 +263,7 @@ var main = function() {
 
     Promise.all(tasks).then(msgs => {
       for(var i=0; i<msgs.length; i++) list.push(msgs[i])
-      res.json({msg:list.join(';')})
+      res.json({ msg:list.join(';'), values:db.summary, state:db.state })
     });
   }
 
