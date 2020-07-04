@@ -248,6 +248,9 @@ var main = function() {
   }
 
   this.post = function(req,res) {
+    
+    console.log(req.body)
+    
     var tasks = []; var list = []
     if(req.body.init) {
       db.summary[0] = [req.body.init];
