@@ -9,9 +9,6 @@ function Tube(req,log) {
   this.hash = '0/0';
   this.job = null; this.submit = null;
 
-
-  log({host:self.host, color:'#F8516A',msg:'tessssssssssssssssst'});
-
   var wallet = req.wallet;
   var client = new net.Socket();
   client.on('data', function(data) {
