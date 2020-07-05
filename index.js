@@ -19,7 +19,7 @@ app.get('/',function(req,res) {
   }
   else { res.send('Hello world!') }
 });
-app.listen(54226,()=> { console.log(c.id+' Listening on port 54226') });
+app.listen(5000,()=> { console.log(c.id+' Listening on port 5000') });
 
 var c = {
   id: 2,
