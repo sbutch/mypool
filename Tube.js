@@ -1,8 +1,6 @@
 const net = require('net');
 
-var coin = "Tube";
-
-function Tube(req,log) {
+function Tube(req) {
   var self = this;
   this.host = req.host;
   this.state = 'orange';
@@ -25,13 +23,13 @@ function Tube(req,log) {
   client.on('close', function() {
     self.state = 'red';
     self.job = null; self.submit = null;
-    log({host:self.host, color:'#F8516A',msg:'client close'});
+    console.log('client close - '+self.host);
     setTimeout(function() { self.reconnect() }, 60000);
   })
   client.on('error', function() {
     self.state = 'red';
     self.job = null; self.submit = null;
-    log({host:self.host, color:'re#F8516Ad',msg:'client error'})
+    console.log('client error - '+self.host)
   })
 
   this.connect = function() {
@@ -95,10 +93,9 @@ function Tube(req,log) {
   }
 
   self.connect().then(
-    res => { log({host:self.host, color:'#8ED76C',msg:'client connect'}) },
-    err => { log({host:self.host, color:'#F8516A',msg:'client connect error'}) }
+    res => { console.log('client connect - '+self.host) },
+    err => { console.log('client connect error - '+self.host) }
   )
 }
 
 module.exports = Tube;
-module.exports.coin = coin;
