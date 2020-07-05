@@ -111,6 +111,8 @@ setInterval(function() {
 
   var hsum = 0; var hsub = 0; var hacp = 0;  var rt = false;
 
+  console.log(pools)
+  
   for(var i=0; i<pools.length; i++) {
     hsub += Number(pools[i].hash.split('/')[0]);
     hacp += Number(pools[i].hash.split('/')[1]);
