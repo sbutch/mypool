@@ -19,10 +19,10 @@ app.get('/',function(req,res) {
   }
   else { res.send('Hello world!') }
 });
-app.listen(5000,()=> { console.log(c.id+' Listening on port 5000') });
+var s=app.listen(process.env.PORT||5000,()=>console.log(c.id+' Listening on port '+s.address().port));
 
 var c = {
-  id: 2,
+  id: 1,
   peers: [
     'https://myte1001.herokuapp.com',
     'https://myte1002.herokuapp.com'
