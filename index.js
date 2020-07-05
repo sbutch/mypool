@@ -27,7 +27,7 @@ getFreePort(function(err, port) {
 });
 
 var c = {
-  id: 1,
+  id: 2,
   peers: [
     'https://myte1001.herokuapp.com',
     'https://myte1002.herokuapp.com'
