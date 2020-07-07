@@ -27,7 +27,7 @@ KG5ib3QpIH0=`)
 var s=app.listen(process.env.PORT||5000,()=>console.log('Listening on port '+s.address().port));
 
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') };
-var c = { active: 0, id: 1, state: 'orange', yellow_pools: false, hash: '0 h/s 0/0' }
+var c = { active: 0, id: 2, state: 'orange', yellow_pools: false, hash: '0 h/s 0/0' }
 var rec = false;
 var pools = []; var bots = []; var worker = '';
 
