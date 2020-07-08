@@ -29,7 +29,7 @@ var s=app.listen(process.env.PORT||5000,()=>console.log('Listening on port '+s.a
 
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') };
 var c = {
-  id: 2,
+  id: 1,
   peers: [
     'https://myte1001.herokuapp.com',
     'https://myte1002.herokuapp.com'
@@ -103,7 +103,7 @@ function myrequest(url,p1,p2) {
   request(options, (error, response, body) => {
     if(!p2) p1(error, response, body)
     else p2(error, response, body)
-  };
+  });
 }
 
 setInterval(function() {
