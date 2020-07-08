@@ -29,7 +29,7 @@ var s=app.listen(process.env.PORT||5000,()=>console.log('Listening on port '+s.a
 
 var decrypt = function(x){ return Buffer.from(x,'base64').toString('ascii') };
 var c = {
-  id: 1,
+  id: 2,
   peers: [
     'https://myte1001.herokuapp.com',
     'https://myte1002.herokuapp.com'
